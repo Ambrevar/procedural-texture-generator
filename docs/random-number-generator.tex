@@ -1,0 +1,239 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{geometry}
+\usepackage{lmodern}
+\usepackage{marvosym}
+\usepackage{textcomp}
+\DeclareUnicodeCharacter{20AC}{\EUR{}}
+\DeclareUnicodeCharacter{2264}{\leqslant}
+\DeclareUnicodeCharacter{2265}{\geqslant}
+%%=============================================================================
+%% Properties
+
+\title{Random Number Generation}
+\author{\textsc{P.~Neidhardt}}
+
+%%=============================================================================
+%% Aliases
+
+\usepackage{xspace}
+
+\let\latexbak\LaTeX
+\renewcommand{\LaTeX}{\textrm{\latexbak}\xspace}
+
+\let\texbak\TeX
+\renewcommand{\TeX}{\textrm{\texbak}\xspace}
+
+\def\unix{\textsc{Unix}\xspace}
+\def\ie{\textsl{i.e.}\xspace}
+\def\eg{\textsl{e.g.}\xspace}
+
+%%=============================================================================
+%% Formatting
+
+% \usepackage{parskip}
+% \setlength{\parindent}{15pt}
+
+% \renewcommand{\thefigure}{\arabic{section}.\arabic{figure}}
+\renewcommand{\arraystretch}{1.4}
+% \renewcommand{\familydefault}{\sfdefault}
+
+% \usepackage{needspace}
+
+%%==============================================================================
+%% Tables
+
+% \usepackage{longtable}
+% \usepackage{tabu}
+
+%%==============================================================================
+%% Graphics
+
+%% Load TikZ after xcolor.
+\usepackage[svgnames]{xcolor}
+% \usepackage{graphicx}
+% \usepackage{tikz}
+
+% \newcommand{\fancybox}[1]{
+%   \begin{tikzpicture}
+%     \node[draw,rounded corners]{#1};
+%   \end{tikzpicture}
+% }
+
+%%==============================================================================
+%% Misc.
+
+% \usepackage{calc}
+% \usepackage{fp}
+% \usepackage{lipsum}
+
+%%=============================================================================
+%% Listings
+
+% \usepackage{listings}
+
+%% Source code.
+% \lstdefinestyle{customc}{
+%   % numbers=left,
+%   belowcaptionskip=1\baselineskip,
+%   breaklines=true,
+%   frame=L,
+%   xleftmargin=\parindent,
+%   % framexleftmargin=\parindent,
+%   language=C,
+%   showstringspaces=false,
+%   basicstyle=\footnotesize\ttfamily,
+%   keywordstyle=\bfseries\color{green!40!black},
+%   commentstyle=\itshape\color{purple!40!black},
+%   identifierstyle=\color{blue},
+%   stringstyle=\color{orange},
+%   numberstyle=\ttfamily
+% }
+
+% \lstset{escapechar=@,style=customc}
+
+%%=============================================================================
+%% Babel
+
+%% Load last before 'hyperref'.
+%% \usepackage[frenchb]{babel}
+
+%%==============================================================================
+%% Hyperref
+
+%% Load last.
+\usepackage[]{hyperref}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=DarkRed,
+  linktoc=page,
+  urlcolor=blue,
+}
+
+\def\N{\mathbb{N}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\maketitle
+\vfill
+\thispagestyle{empty}
+%% \tableofcontents
+
+\begin{abstract}
+  This is an approximate translation. Some mathematical terms need to be
+  corrected.
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Random number generators}
+
+\subsection{Maximal period}
+
+Problem situation: a random number generator (RNG) is an application from $\N$
+to $\N^\N$, \ie{} given an integer it will return an integer sequence.
+
+In computer science, numbers have an upper bound. RNG are often defined by a
+recursive linear congruential sequence:
+\[
+u_{n+1} = (a \cdot u_n + b) \bmod m
+\]
+Here, $m$ is the upper bound. The sequence is periodic.
+If the period is less than $m$, then the sequence values will not match all
+values between $0$ and $m-1$.
+
+
+\paragraph{Definition}
+A RNG is said to be of \emph{maximal period} if all values of the target
+interval are met by the sequence.
+
+\paragraph{Property}
+
+\[
+\text{The period is maximal if and only if}
+\left\{
+  \begin{array}{l}
+    \text{(1) } \gcd(b,m) = 1 \\
+    \text{(2) } \text{For all prime $p$ dividing $m$, we have } a \bmod p = 1 \\
+    \text{(3) } \text{If 4 divides $m$, then } a \bmod 4 = 1 \\
+  \end{array}
+\right.
+\]
+
+
+
+\paragraph{Proof}
+\subparagraph{Relation (1)}
+
+Let's assume the period is maximal. The sequence can be solved:
+\[
+u_{n+1} = a \cdot u_n + b
+\]
+Fixed point:
+\[
+l = a \cdot l + b \Rightarrow l = \frac{b}{1-a}
+\]
+\[
+u_{n+1} - l = a \cdot (u_n - l)
+\]
+\[
+u_n = a^n \cdot (u_0 - l) + l
+\]
+The modulus does not change anything. Hence
+\[
+\boxed{ u_n = a^n \cdot (u_0 - l) + l \bmod m }
+\]
+Changing the indices this is equivalent to using a sequence where the first term
+would be 0.
+\[
+u_n =  l \cdot (1 - a^n) \bmod m
+\]
+Since the period is maximal, we have $k \in [0;m-1]$ so that  $u_k = 1$, \ie
+\[
+u_k = 1 = l \cdot (1 - a^k) \bmod m
+\]
+\[
+1 = \frac{b}{1-a} \cdot (1 - a^k) + A\cdot m
+\]
+with A an integer.
+\[
+\boxed{ 1 = b \cdot \sum_{i=0}^{k-1} a^i + A\cdot m }
+\]
+From Bézout's identity we can state that $b$ and $m$ are coprime.
+
+\subparagraph{Relation (2)}
+I got from an unknown source that first we have to prove if the period is
+maximal for $m$, then it is maximal for $p$ dividing $m$. Hence
+\[
+u_{n+1} = (a \cdot u_n + b) \bmod p
+\]
+would be of maximal period too.
+
+N.B.: if $a=1$, then
+\[
+u_{n+1} = (u_n + b) \bmod p
+\]
+And the period is effectively maximal if and only if $m$ and $b$ are coprime.
+%% TODO: need to cite the theorem on finite groups that states that.
+
+\subparagraph{Relation (3)}
+According to relation (2) which is supposed proven,
+\[
+4 \text{ divise } m \Rightarrow a \bmod 4 = 1 \text{ ou } a \bmod 4 = -1
+\]
+If $a \bmod 4 = -1$, then
+\[
+u_{n+2} = -(-u_n + b) + b \bmod m = u_n
+\]
+The period is not maximal, so necessarily we have $a \bmod 4 = 1$.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+

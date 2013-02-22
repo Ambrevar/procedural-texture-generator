@@ -1,0 +1,229 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{geometry}
+\usepackage{lmodern}
+\usepackage{marvosym}
+\usepackage{textcomp}
+\DeclareUnicodeCharacter{20AC}{\EUR{}}
+\DeclareUnicodeCharacter{2264}{\leqslant}
+\DeclareUnicodeCharacter{2265}{\geqslant}
+%%=============================================================================
+%% Properties
+
+\title{Random Number Generation}
+\author{\textsc{P.~Neidhardt}}
+
+%%=============================================================================
+%% Aliases
+
+\usepackage{xspace}
+
+\let\latexbak\LaTeX
+\renewcommand{\LaTeX}{\textrm{\latexbak}\xspace}
+
+\let\texbak\TeX
+\renewcommand{\TeX}{\textrm{\texbak}\xspace}
+
+\def\unix{\textsc{Unix}\xspace}
+\def\ie{\textsl{i.e.}\xspace}
+\def\eg{\textsl{e.g.}\xspace}
+
+%%=============================================================================
+%% Formatting
+
+% \usepackage{parskip}
+% \setlength{\parindent}{15pt}
+
+% \renewcommand{\thefigure}{\arabic{section}.\arabic{figure}}
+\renewcommand{\arraystretch}{1.4}
+% \renewcommand{\familydefault}{\sfdefault}
+
+% \usepackage{needspace}
+
+%%==============================================================================
+%% Tables
+
+% \usepackage{longtable}
+% \usepackage{tabu}
+
+%%==============================================================================
+%% Graphics
+
+%% Load TikZ after xcolor.
+\usepackage[svgnames]{xcolor}
+% \usepackage{graphicx}
+% \usepackage{tikz}
+
+% \newcommand{\fancybox}[1]{
+%   \begin{tikzpicture}
+%     \node[draw,rounded corners]{#1};
+%   \end{tikzpicture}
+% }
+
+%%==============================================================================
+%% Misc.
+
+% \usepackage{calc}
+% \usepackage{fp}
+% \usepackage{lipsum}
+
+%%=============================================================================
+%% Listings
+
+% \usepackage{listings}
+
+%% Source code.
+% \lstdefinestyle{customc}{
+%   % numbers=left,
+%   belowcaptionskip=1\baselineskip,
+%   breaklines=true,
+%   frame=L,
+%   xleftmargin=\parindent,
+%   % framexleftmargin=\parindent,
+%   language=C,
+%   showstringspaces=false,
+%   basicstyle=\footnotesize\ttfamily,
+%   keywordstyle=\bfseries\color{green!40!black},
+%   commentstyle=\itshape\color{purple!40!black},
+%   identifierstyle=\color{blue},
+%   stringstyle=\color{orange},
+%   numberstyle=\ttfamily
+% }
+
+% \lstset{escapechar=@,style=customc}
+
+%%=============================================================================
+%% Babel
+
+%% Load last before 'hyperref'.
+\usepackage[frenchb]{babel}
+
+%%==============================================================================
+%% Hyperref
+
+%% Load last.
+\usepackage[]{hyperref}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=DarkRed,
+  linktoc=page,
+  urlcolor=blue,
+}
+
+\DeclareMathOperator{\pgcd}{PGCD}
+
+\def\N{\mathbb{N}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\maketitle
+\vfill
+\thispagestyle{empty}
+%% \tableofcontents
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Générateur de nombres pseudo-aléatoires}
+
+\subsection{Periode maximale}
+
+Situation du problème: un générateur de nombre pseudo-aléatoire (GNPA) est une application de $\N$ dans $\N^\N$, i.e. qui à un entier renvoie une suite d'entiers.
+En informatique, les nombres ont une borne supérieure. On définit souvent le GNPA par une suite récurrente congruentielle linéaire:
+\[
+u_{n+1} = (a \cdot u_n + b) \bmod m
+\]
+Ici, $m$ représente donc la borne supérieure. La suite définie précédemment est périodique.
+Si la période est inférieure à $m$, alors la suite ne prendra pas toutes les valeurs comprises entre $0$ et $m-1$.
+
+\paragraph{Définition}
+Un GNPA est dit de \textbf{période maximale} si toutes les valeurs de son intervalle d'arrivée sont prises par la suite.
+
+\paragraph{Propriété}
+
+\[
+\text{La période est maximale si et seulement si}
+\left\{
+  \begin{array}{l}
+    \text{(1) } \pgcd(b,m) = 1 \\
+    \text{(2) } \text{Pour tout $p$ premier divisant $m$, on a } a \bmod p = 1 \\
+    \text{(3) } \text{Si 4 divise $m$, alors } a \bmod 4 = 1 \\
+  \end{array}
+\right.
+\]
+
+
+
+\paragraph{Démonstration: sens direct}
+\subparagraph{Relation (1)}
+
+
+Supposons la période max. Résolution de la suite arithmético-géométrique :
+\[
+u_{n+1} = a \cdot u_n + b
+\]
+Point fixe:
+\[
+l = a \cdot l + b \Rightarrow l = \frac{b}{1-a}
+\]
+\[
+u_{n+1} - l = a \cdot (u_n - l)
+\]
+\[
+u_n = a^n \cdot (u_0 - l) + l
+\]
+L'ajout du modulo ne change rien. On a donc
+\[
+\boxed{ u_n = a^n \cdot (u_0 - l) + l \bmod m }
+\]
+Par changement d'indice, on peut se ramener à une suite dont le premier terme est 0.
+\[
+u_n =  l \cdot (1 - a^n) \bmod m
+\]
+Comme la période est max, il existe $k \in [0;m-1]$ tel que $u_k = 1$, i.e.
+\[
+u_k = 1 = l \cdot (1 - a^k) \bmod m
+\]
+\[
+1 = \frac{b}{1-a} \cdot (1 - a^k) + A\cdot m
+\]
+avec A entier relatif.
+\[
+\boxed{ 1 = b \cdot \sum_{i=0}^{k-1} a^i + A\cdot m }
+\]
+D'après le théorème de Bachet-Bézout, $b$ et $m$ sont premiers entre eux.
+
+
+\subparagraph{Relation (2)}
+D'après un étudiant en master, il faut d'abord montrer que si la période est maximale pour $m$, alors elle est maximale pour $p$ premier divisant $m$. Donc
+\[
+u_{n+1} = (a \cdot u_n + b) \bmod p
+\]
+serait de période max aussi.
+
+N.B.: si $a=1$, alors
+\[
+u_{n+1} = (u_n + b) \bmod p
+\]
+Et la période est bien maximale si et seulement si $m$ et $b$ sont premiers entre eux d'après je ne sais plus quel théorème vu en spé sur les groupes finis.
+
+\subparagraph{Relation (3)}
+D'après la relation (2) (que l'on suppose démontrée),
+\[
+4 \text{ divise } m \Rightarrow a \bmod 4 = 1 \text{ ou } a \bmod 4 = -1
+\]
+Si $a \bmod 4 = -1$, alors
+\[
+u_{n+2} = -(-u_n + b) + b \bmod m = u_n
+\]
+La période n'est pas maximale, donc nécéssairement $a \bmod 4 = 1$.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+

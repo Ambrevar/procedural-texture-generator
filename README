@@ -1,0 +1,15 @@
+################################################################################
+                              Procedural textures
+################################################################################
+
+This is a simple implementation of the Perlin algorithm.
+
+The idea behind procedural textures is to describe the picture with math
+functions instead of describing every pixel individually.
+
+Since the late 90s the rise of computational power and storage increase has led
+to very much resource abuse. One of them is the huge waste of space for textures
+used in CGI and video games. Let's face it: if you are looking for decent
+quality texture, you will need really big files. That's why video games texture
+have not improved that much over the last decade.
+
