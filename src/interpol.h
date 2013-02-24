@@ -1,7 +1,15 @@
-#ifndef __interpol_h__
-#define __calque_h__
+/*******************************************************************************
+ * @file interpol.h
+ * @date 
+ * @brief 
+ *
+ ******************************************************************************/
+
+#ifndef INTERPOL_H
+#define INTERPOL_H 1
 
 int interpol(int, int, int, int);
-int interpol_val(int, int, int, calque*);
+int interpol_val(int, int, int, layer*);
 
-#endif
+#endif // INTERPOL_H
+

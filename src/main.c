@@ -1,33 +1,47 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
+/* #include <time.h> */
 #include <SDL/SDL.h>
 
-#include "calque.h"
+#include "layer.h"
 #include "misc.h"
-/* #include "main.h" */
 
+void usage()
+{
+    puts(
+        "procedural-textures [OPTIONS] FILE\n\n"
+        "Option list:\n"
+        "  -h: show this help.\n"
+        );
+}
 
+void trace(const char * s)
+{
+    fprintf (stderr, "==> %s\n", s);
+}
 
-
-// int main(int argc, char **argv)
 int main(int argc, char **argv)
 {
+    if (argc < 2)
+    {
+        usage();
+        return 0;
+    }
 
-// Paramètres de la texture (valeurs d'entrée)
+    // Paramètres de la texture (valeurs d'entrée)
     int seed;
 	int octaves;
-	int frequence;
-	float persistance;
-    int largeur;
+	int frenquency;
+	double persistance;
+    int width;
 
-    int seuil_rouge;
-    int seuil_vert;
-    int seuil_bleu;
+    uint8_t threshold_red;
+    uint8_t threshold_green;
+    uint8_t threshold_blue;
 
-    couleur couleur1;
-    couleur couleur2;
-    couleur couleur3;
+    color color1;
+    color color2;
+    color color3;
 
 
     int option_lissage;
@@ -44,21 +58,21 @@ int main(int argc, char **argv)
     if (fichier != NULL) {
         fscanf(fichier, "%s %d\n", chaine, &seed);
         fscanf(fichier, "%s %d\n", chaine, &octaves);
-        fscanf(fichier, "%s %d\n", chaine, &frequence);
-        fscanf(fichier, "%s %f\n", chaine, &persistance);
-        fscanf(fichier, "%s %d\n", chaine, &largeur);
-        fscanf(fichier, "%s %d\n", chaine, &seuil_rouge);
-        fscanf(fichier, "%s %d\n", chaine, &seuil_vert);
-        fscanf(fichier, "%s %d\n", chaine, &seuil_bleu);
-        fscanf(fichier, "%s %d\n", chaine, &couleur1.rouge);
-        fscanf(fichier, "%s %d\n", chaine, &couleur1.vert);
-        fscanf(fichier, "%s %d\n", chaine, &couleur1.bleu);
-        fscanf(fichier, "%s %d\n", chaine, &couleur2.rouge);
-        fscanf(fichier, "%s %d\n", chaine, &couleur2.vert);
-        fscanf(fichier, "%s %d\n", chaine, &couleur2.bleu);
-        fscanf(fichier, "%s %d\n", chaine, &couleur3.rouge);
-        fscanf(fichier, "%s %d\n", chaine, &couleur3.vert);
-        fscanf(fichier, "%s %d\n", chaine, &couleur3.bleu);
+        fscanf(fichier, "%s %d\n", chaine, &frenquency);
+        fscanf(fichier, "%s %lf\n", chaine, &persistance);
+        fscanf(fichier, "%s %d\n", chaine, &width);
+        fscanf(fichier, "%s %d\n", chaine, &threshold_red);
+        fscanf(fichier, "%s %d\n", chaine, &threshold_green);
+        fscanf(fichier, "%s %d\n", chaine, &threshold_blue);
+        fscanf(fichier, "%s %d\n", chaine, &color1.red);
+        fscanf(fichier, "%s %d\n", chaine, &color1.green);
+        fscanf(fichier, "%s %d\n", chaine, &color1.blue);
+        fscanf(fichier, "%s %d\n", chaine, &color2.red);
+        fscanf(fichier, "%s %d\n", chaine, &color2.green);
+        fscanf(fichier, "%s %d\n", chaine, &color2.blue);
+        fscanf(fichier, "%s %d\n", chaine, &color3.red);
+        fscanf(fichier, "%s %d\n", chaine, &color3.green);
+        fscanf(fichier, "%s %d\n", chaine, &color3.blue);
         fscanf(fichier, "%s %d\n", chaine, &option_lissage);
         fscanf(fichier, "%s %d\n", chaine, &degre_lissage);
 
@@ -71,42 +85,40 @@ int main(int argc, char **argv)
         return 1;
     }
 
-// Génération aléatoire : utilisation de la graine.
+    // Génération aléatoire : utilisation de la graine.
     srand(seed);
 
-// Création de calque
-    struct calque *base;
+    // Création de layer
+    struct layer *base;
 
-// Initialisation du calque
-    base = init_calque(largeur,1);
+    // Initialisation du layer
+    base = init_layer(width,1);
     if (!base){
         return 1;
     }
 
 
-// Transformation via l'algorithme de Perlin.
-    calque* random = generer_calque_alea(base);
-    enregistrer_bmp(random, "bitmap/aleatoire.bmp");
-    generer_calque_travail(frequence, octaves, persistance, base, random);
+    // Transformation via l'algorithme de Perlin.
+    layer* random_layer = generate_random_layer(base);
+    save_bmp(random_layer, "random.bmp");
+    generate_work_layer(frenquency, octaves, persistance, base, random_layer);
 
-    enregistrer_bmp(base, "bitmap/resultat_GS.bmp");
-    enregistrer_bmp_rgb(base, "bitmap/resultat_RGB.bmp", seuil_rouge, seuil_vert, seuil_bleu, couleur1, couleur2, couleur3);
-    enregistrer_bmp_alt(base, "bitmap/resultat_alt.bmp", seuil_rouge, couleur1, couleur2);
+    save_bmp(base, "resultat_GS.bmp");
+    save_bmp_rgb(base, "resultat_RGB.bmp", threshold_red, threshold_green, threshold_blue, color1, color2, color3);
+    save_bmp_alt(base, "resultat_alt.bmp", threshold_red, color1, color2);
 
 
 
-// Version lissée si lissage activé en option.
-
+    // Version lissée si lissage activé en option.
     if (option_lissage != 0) {
-        // lissage_calque(degre_lissage, base_lisse, seuil_rouge, seuil_vert, seuil_bleu);
-        calque* calque_lisse = lissage_calque(degre_lissage, base);
+        // lissage_layer(degre_lissage, base_lisse, threshold_red, threshold_green, threshold_blue);
+        layer* layer_lisse = smooth_layer(degre_lissage, base);
 
-        enregistrer_bmp(calque_lisse, "bitmap/resultat_GS_lisse.bmp");
-        enregistrer_bmp_rgb(calque_lisse, "bitmap/resultat_RGB_lisse.bmp", seuil_rouge, seuil_vert, seuil_bleu, couleur1, couleur2, couleur3);
-        enregistrer_bmp_alt(calque_lisse, "bitmap/resultat_alt_lisse.bmp", seuil_rouge, couleur1, couleur2);
+        save_bmp(layer_lisse, "resultat_GS_lisse.bmp");
+        save_bmp_rgb(layer_lisse, "resultat_RGB_lisse.bmp", threshold_red, threshold_green, threshold_blue, color1, color2, color3);
+        save_bmp_alt(layer_lisse, "resultat_alt_lisse.bmp", threshold_red, color1, color2);
 
-        free_calque(calque_lisse);
-
+        free_layer(layer_lisse);
     }
 
 	return 0;

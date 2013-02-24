@@ -4,7 +4,7 @@
 #include <SDL/SDL.h>
 
 // void colorerPixel(SDL_Surface*, int, int, Uint32);
-// unsigned char aleatoire(float);
-// void enregistrer_bmp(struct calque *, const char *);
+// unsigned char random(double);
+// void save_bmp(struct layer *, const char *);
 
 #endif

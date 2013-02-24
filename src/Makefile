@@ -26,7 +26,7 @@ LDFLAGS_ALL += -lSDL
 ## Math
 LDFLAGS_ALL += -lm
 
-SRC += calque.c interpol.c main.c misc.c 
+SRC += layer.c interpol.c main.c misc.c 
 OBJ = ${SRC:.c=.o}
 
 ##==============================================================================
