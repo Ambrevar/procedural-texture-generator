@@ -88,14 +88,14 @@ int main(int argc, char** argv)
 
             case LINE_PERSISTENCE:
             {
-                double dbuf = strtod(subtoken, NULL);
+                double buf = strtod(subtoken, NULL);
                 if (errno == ERANGE)
                 {
                     perror("Could not convert string to double.");
                     continue;
                 }
-                printf("[%s|%f]\n", subtoken, dbuf);
-                fwrite(&dbuf, sizeof(double), 1, outfile);                
+                printf("[%s|%f]\n", subtoken, buf);
+                fwrite(&buf, sizeof(double), 1, outfile);                
                 break;
             }
 
@@ -124,7 +124,7 @@ int main(int argc, char** argv)
                     continue;
                 }
                 printf("[%s|%" PRIu16 "]\n", subtoken, buf);
-                fwrite(&buf, sizeof(uint8_t), 1, outfile);
+                fwrite(&buf, sizeof(uint16_t), 1, outfile);
                 break;
             }
 

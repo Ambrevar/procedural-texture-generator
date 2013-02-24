@@ -86,10 +86,10 @@ main (int argc, char **argv)
     char * option_ptr = file_buf;
 #define READ_OPT(opt,size) memcpy(&(opt), option_ptr, size); option_ptr += size;
 
-    printf ("%p\n",option_ptr);
-    printf ("%p\n",file_buf);
-    memcpy(&(seed), option_ptr, 4); option_ptr += 4;
-    /* READ_OPT(seed, 4); */
+    /* printf ("%p\n",option_ptr); */
+    /* printf ("%p\n",file_buf); */
+    /* memcpy(&(seed), option_ptr, 4); option_ptr += 4; */
+    READ_OPT(seed, 4);
     READ_OPT(octaves, 2);
     READ_OPT(frequency, 2);
     READ_OPT(persistence, 8);
@@ -108,28 +108,29 @@ main (int argc, char **argv)
     READ_OPT(color3.blue, 1);
     READ_OPT(smoothing, 2);
 
+    printf ("%ld,%ld\n",option_ptr-file_buf, file_size);
     
     
 // TODO: persistence translation.
 
-    /* fprintf (stderr, "%lld\n", seed); */
-    /* fprintf (stderr, "%ld\n", octaves); */
-    /* fprintf (stderr, "%ld\n", frequency); */
-    /* fprintf (stderr, "%lf\n", persistence); */
-    /* fprintf (stderr, "%ld\n", width); */
-    /* fprintf (stderr, "%ld\n", threshold_red); */
-    /* fprintf (stderr, "%ld\n", threshold_green); */
-    /* fprintf (stderr, "%ld\n", threshold_blue); */
-    /* fprintf (stderr, "%ld\n", color1.red); */
-    /* fprintf (stderr, "%ld\n", color1.green); */
-    /* fprintf (stderr, "%ld\n", color1.blue); */
-    /* fprintf (stderr, "%ld\n", color2.red); */
-    /* fprintf (stderr, "%ld\n", color2.green); */
-    /* fprintf (stderr, "%ld\n", color2.blue); */
-    /* fprintf (stderr, "%ld\n", color3.red); */
-    /* fprintf (stderr, "%ld\n", color3.green); */
-    /* fprintf (stderr, "%ld\n", color3.blue); */
-    /* fprintf (stderr, "%ld\n", smoothing); */
+    fprintf (stderr, "%ld\n", seed);
+    fprintf (stderr, "%ld\n", octaves);
+    fprintf (stderr, "%ld\n", frequency);
+    fprintf (stderr, "%lf\n", persistence);
+    fprintf (stderr, "%ld\n", width);
+    fprintf (stderr, "%ld\n", threshold_red);
+    fprintf (stderr, "%ld\n", threshold_green);
+    fprintf (stderr, "%ld\n", threshold_blue);
+    fprintf (stderr, "%ld\n", color1.red);
+    fprintf (stderr, "%ld\n", color1.green);
+    fprintf (stderr, "%ld\n", color1.blue);
+    fprintf (stderr, "%ld\n", color2.red);
+    fprintf (stderr, "%ld\n", color2.green);
+    fprintf (stderr, "%ld\n", color2.blue);
+    fprintf (stderr, "%ld\n", color3.red);
+    fprintf (stderr, "%ld\n", color3.green);
+    fprintf (stderr, "%ld\n", color3.blue);
+    fprintf (stderr, "%ld\n", smoothing);
 
     return 0;
 
