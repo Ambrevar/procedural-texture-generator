@@ -5,43 +5,43 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct layer *
-init_layer (int t, double p)
+layer *
+init_layer (int size, double persistance)
 {
+    layer *current_layer = malloc (sizeof (layer));
 
-    struct layer *s = malloc (sizeof (struct layer));
-
-    if (!s)
+    if (!current_layer)
     {
-        printf ("Erreur d'allocation");
+        trace ("Allocation error.");
         return NULL;
     }
 
-    s->v = malloc (t * sizeof (int *));
+    current_layer->v = malloc (size * sizeof (int *));
 
-    if (!s->v)
+    if (!current_layer->v)
     {
-        printf ("Erreur d'allocation");
+        trace ("Allocation error.");
         return NULL;
     }
 
+    // TODO: do only one size*size malloc here.
     int i, j;
-    for (i = 0; i < t; i++)
+    for (i = 0; i < size; i++)
     {
-        s->v[i] = malloc (t * sizeof (int));
-        if (!s->v[i])
+        current_layer->v[i] = malloc (size * sizeof (int));
+        if (!current_layer->v[i])
         {
-            printf ("Erreur d'allocation");
+            trace ("Allocation error.");
             return NULL;
         }
-        for (j = 0; j < t; j++)
-            s->v[i][j] = 0;
+        for (j = 0; j < size; j++)
+            current_layer->v[i][j] = 0;
     }
 
-    s->size = t;
-    s->persistance = p;
+    current_layer->size = size;
+    current_layer->persistance = persistance;
 
-    return s;
+    return current_layer;
 }
 
 void
@@ -53,14 +53,13 @@ free_layer (struct layer *s)
     free (s->v);
 }
 
+// TODO: use constant seed?
 /* Gray scale */
 layer *
 generate_random_layer (struct layer *c)
 {
-
     int size = c->size;
     int i, j;
-
 
     layer *random_layer;
     random_layer = init_layer (size, 1);
@@ -70,13 +69,16 @@ generate_random_layer (struct layer *c)
     for (i = 0; i < size; i++)
         for (j = 0; j < size; j++)
         {
-            random_layer->v[i][j] = custom_random (256);
+            random_layer->v[i][j] = custom_random (255);
             /* random_layer->v[i][j] = randomgen(seed, 255); */
         }
 
     return random_layer;
 }
 
+// TODO: remove all int.
+// TODO: check mem_leaks
+// TODO: remove persistance in args and get it from current.
 void
 generate_work_layer (long frequency,
                      int octaves,
@@ -84,14 +86,8 @@ generate_work_layer (long frequency,
                      layer * current_layer, layer * random_layer)
 {
     long size = current_layer->size;
-    int i, j, n, f_courante;
-    int a;
+    long i, j, n, f_courante;
     double sum_persistances;
-
-    // TODO: what is it supposed to be used for?
-    double pas;
-    pas = (double) (size) / frequency;
-
     double persistance_courante = persistance;
 
     // layers de travail
@@ -110,11 +106,11 @@ generate_work_layer (long frequency,
     for (n = 0; n < octaves; n++)
     {
         for (i = 0; i < size; i++)
+        {
             for (j = 0; j < size; j++)
-            {
-                a = interpol_val (i, j, f_courante, random_layer);
-                mes_layers[n]->v[i][j] = a;
-            }
+                mes_layers[n]->v[i][j] = 
+                    interpol_val (i, j, f_courante, random_layer);
+        }
         f_courante *= frequency;
     }
 
@@ -138,18 +134,10 @@ generate_work_layer (long frequency,
         }
     }
 
-//    save_bmp(mes_layers[0], "bitmap/octave0.bmp");
-//    save_bmp(mes_layers[1], "bitmap/octave1.bmp");
-//    save_bmp(mes_layers[2], "bitmap/octave2.bmp");
-//    save_bmp(mes_layers[3], "bitmap/octave3.bmp");
-
-// Libération mémoire
+    /* Clean */
     free_layer (random_layer);
-
     for (i = 0; i < octaves; i++)
-    {
         free_layer (mes_layers[i]);
-    }
     free (mes_layers);
 }
 

@@ -12,7 +12,7 @@ trace (const char *s)
     fprintf (stderr, "==> %s\n", s);
 }
 
-// SDL function to color a specific pixel on "screen".
+/* SDL function to color a specific pixel on "screen". */
 void
 color_pixel (SDL_Surface * screen, int x, int y, Uint32 target_color)
 {
@@ -20,7 +20,7 @@ color_pixel (SDL_Surface * screen, int x, int y, Uint32 target_color)
 }
 
 /**
- * Returns a value between 0 and max excluded.
+ * Returns a value between 0 and max inclusive.
  */
 unsigned long
 custom_random (unsigned long max)
@@ -29,48 +29,58 @@ custom_random (unsigned long max)
 }
 
 /**
- * Returns a value between 0 and max.
+ * Returns a value between 0 and max inclusive.
+ *
+ * In this home-made random, we use the following recursive sequence to generate
+ * random values:
+ *
+ *  random_number = ( factor * random_number + offset ) % max
+ *
+ * We need to match the following properties to have a decent RNG.
+ *
+ *  - Offset and max must be comprime
+ *  - If 4 divides max , then factor % 4 == 1
+ *  - For all p dividing max, factor % p == 1
+ *
+ * Besides,
+ *
+ *  - offset must be "small" compared to max;
+ *  - factor must be close to the square root of max.
  */
-// Fourni une valeur entre 0 et a.
-//    * b et m sont premiers entre eux ;
-//    * si m est un multiple de 4, alors a%4 = 1 ;
-//    * pour tous les nombres premiers p diviseurs de m, on a a%p =1 .
-
-// b doit être "petit" par rapport à a et m ;
-// a doit être proche de la racine carrée de m.
 unsigned long 
 randomgen (unsigned long max, unsigned long seed)
 {
     unsigned long i;
     static unsigned long random_number = RANDOMGEN_INIT;
     unsigned long factor = RANDOMGEN_FACTOR, offset = RANDOMGEN_OFFSET;
+
     for (i = 0; i < seed; i++)
-    {
         random_number = (factor * random_number + offset) % max;
-    }
+
     random_number %= max;
     return random_number % max;
 }
 
+/* Grayscale bitmap. */
 void
-save_bmp (struct layer *c, const char *filename)
+save_bmp (struct layer *current_layer, const char *filename)
 {
 
     SDL_Surface *screen =
-        SDL_CreateRGBSurface (SDL_SWSURFACE, c->size, c->size, 32, 0, 0, 0,
+        SDL_CreateRGBSurface (SDL_SWSURFACE, current_layer->size, current_layer->size, 32, 0, 0, 0,
                               0);
     if (!screen)
         trace ("SDL error on SDL_CreateRGBSurface");
 
-    int i, j;
-    Uint32 u;
+    long i, j;
+    Uint32 map;
     SDL_PixelFormat *fmt = screen->format;
-    for (i = 0; i < c->size; i++)
+    for (i = 0; i < current_layer->size; i++)
     {
-        for (j = 0; j < c->size; j++)
+        for (j = 0; j < current_layer->size; j++)
         {
-            u = SDL_MapRGB (fmt, c->v[i][j], c->v[i][j], c->v[i][j]);
-            color_pixel (screen, i, j, u);
+            map = SDL_MapRGB (fmt, current_layer->v[i][j], current_layer->v[i][j], current_layer->v[i][j]);
+            color_pixel (screen, i, j, map);
         }
     }
 
@@ -79,36 +89,38 @@ save_bmp (struct layer *c, const char *filename)
 }
 
 void
-save_bmp_rgb (layer * c,
+save_bmp_rgb (layer * current_layer,
               const char *filename,
-              int threshold_red,
-              int threshold_green,
-              int threshold_blue, color color1, color color2, color color3)
+              Uint8 threshold_red,
+              Uint8 threshold_green,
+              Uint8 threshold_blue, 
+              color color1,
+              color color2, 
+              color color3)
 {
 
     SDL_Surface *screen =
-        SDL_CreateRGBSurface (SDL_SWSURFACE, c->size, c->size, 32, 0, 0, 0,
+        SDL_CreateRGBSurface (SDL_SWSURFACE, current_layer->size, current_layer->size, 32, 0, 0, 0,
                               0);
     if (!screen)
         trace ("SDL error on SDL_CreateRGBSurface");
 
-    int i, j;
-    int color_init = 0;
-    Uint32 u;
+    long i, j;
+    Uint8 color_init = 0;
+    Uint32 map;
     SDL_PixelFormat *fmt = screen->format;
-    for (i = 0; i < c->size; i++)
-        for (j = 0; j < c->size; j++)
-        {
 
-            color_init = c->v[i][j] % 255;
+    for (i = 0; i < current_layer->size; i++)
+        for (j = 0; j < current_layer->size; j++)
+        {
+            color_init = current_layer->v[i][j];
 
             Uint8 red, green, blue;
-
             double f;
 
             if (color_init < threshold_red)
             {
-                f = (double) (color_init - 0) / (threshold_red - 0);
+                /* f = (double) (color_init - 0) / (threshold_red - 0); */
                 red = color1.red;
                 green = color1.green;
                 blue = color1.blue;
@@ -139,8 +151,8 @@ save_bmp_rgb (layer * c,
                 blue = color3.blue;
             }
 
-            u = SDL_MapRGB (fmt, red, green, blue);
-            color_pixel (screen, i, j, u);
+            map = SDL_MapRGB (fmt, red, green, blue);
+            color_pixel (screen, i, j, map);
         }
 
     SDL_SaveBMP (screen, filename);
@@ -149,43 +161,40 @@ save_bmp_rgb (layer * c,
 
 
 void
-save_bmp_alt (layer * c,
-              const char *filename, int threshold, color color1, color color2)
+save_bmp_alt (layer * current_layer,
+              const char *filename, Uint8 threshold, color color1, color color2)
 {
 
     SDL_Surface *screen =
-        SDL_CreateRGBSurface (SDL_SWSURFACE, c->size, c->size, 32, 0, 0, 0,
+        SDL_CreateRGBSurface (SDL_SWSURFACE, current_layer->size, current_layer->size, 32, 0, 0, 0,
                               0);
     if (!screen)
         trace ("SDL error on SDL_CreateRGBSurface");
 
-    int i, j;
-    int color_init = 0;
-    Uint32 u;
+    long i, j;
+    Uint8 color_init = 0;
+    Uint32 map;
     SDL_PixelFormat *fmt = screen->format;
-    for (i = 0; i < c->size; i++)
-        for (j = 0; j < c->size; j++)
+    for (i = 0; i < current_layer->size; i++)
+        for (j = 0; j < current_layer->size; j++)
         {
 
-            color_init = c->v[i][j] % 255;
+            color_init = current_layer->v[i][j];
 
-            int red, green, blue;
-
+            Uint8 red, green, blue;
             double f;
 
             double value = fmod (color_init, threshold);
             if (value > threshold / 2)
-            {
                 value = threshold - value;
-            }
 
-            f = (1 - cos (3.1415 * value / (threshold / 2))) / 2;
+            f = (1 - cos (M_PI * value / (threshold / 2))) / 2;
             red = color1.red * (1 - f) + color2.red * f;
             green = color1.green * (1 - f) + color2.green * f;
             blue = color1.blue * (1 - f) + color2.blue * f;
 
-            u = SDL_MapRGB (fmt, red, green, blue);
-            color_pixel (screen, i, j, u);
+            map = SDL_MapRGB (fmt, red, green, blue);
+            color_pixel (screen, i, j, map);
         }
 
     SDL_SaveBMP (screen, filename);

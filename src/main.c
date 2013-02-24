@@ -85,6 +85,7 @@ main (int argc, char **argv)
     struct layer *base;
 
     // Initialisation du layer
+    // TODO: second arg should be persistance.
     base = init_layer (width, 1);
     if (!base)
     {

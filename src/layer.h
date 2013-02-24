@@ -37,8 +37,9 @@ void generate_work_layer (long frequency,
 
 layer *smooth_layer (long factor, layer * current_layer);
 
-int interpolate (int, int, int, int);
-int valeur_interpolee (int, int, int, struct layer *);
+// TODO: remove these lines.
+/* int interpolate (int, int, int, int); */
+/* int valeur_interpolee (int, int, int, struct layer *); */
 
 
 #endif // LAYER_H

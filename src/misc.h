@@ -21,13 +21,15 @@ void save_bmp (struct layer *c, const char *filename);
 
 void save_bmp_rgb (struct layer *c,
                    const char *filename,
-                   int threshold_red,
-                   int threshold_green,
-                   int threshold_blue,
-                   color color1, color color2, color color3);
+                   Uint8 threshold_red,
+                   Uint8 threshold_green,
+                   Uint8 threshold_blue,
+                   color color1,
+                   color color2,
+                   color color3);
 
 void save_bmp_alt (layer * c,
                    const char *filename,
-                   int threshold, color color1, color color2);
+                   Uint8 threshold, color color1, color color2);
 
 #endif // MISC_H
