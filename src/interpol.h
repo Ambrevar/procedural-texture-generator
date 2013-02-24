@@ -6,10 +6,9 @@
  ******************************************************************************/
 
 #ifndef INTERPOL_H
-#define INTERPOL_H 1
+#    define INTERPOL_H 1
 
-int interpol(int, int, int, int);
-int interpol_val(int, int, int, layer*);
+int interpol (int, int, int, int);
+int interpol_val (int, int, int, layer *);
 
 #endif // INTERPOL_H
-
