@@ -23,8 +23,8 @@ unsigned char aleatoire(float a){
 //    * si m est un multiple de 4, alors a%4 = 1 ;
 //    * pour tous les nombres premiers p diviseurs de m, on a a%p =1 .
 
-// b doit être "petit" par rapport à a et m ;
-// a doit être proche de la racine carrée de m.
+// b doit Ãªtre "petit" par rapport Ã  a et m ;
+// a doit Ãªtre proche de la racine carrÃ©e de m.
 unsigned char randomgen(int max, int seed){
     int i;
     static int random= 12453;

@@ -5,7 +5,7 @@
 
 #include "calque.h"
 #include "misc.h"
-#include "main.h"
+/* #include "main.h" */
 
 
 
@@ -14,7 +14,7 @@
 int main(int argc, char **argv)
 {
 
-// Paramètres de la texture (valeurs d'entrée)
+// ParamÃ¨tres de la texture (valeurs d'entrÃ©e)
     int seed;
 	int octaves;
 	int frequence;
@@ -71,10 +71,10 @@ int main(int argc, char **argv)
         return 1;
     }
 
-// Génération aléatoire : utilisation de la graine.
+// GÃ©nÃ©ration alÃ©atoire : utilisation de la graine.
     srand(seed);
 
-// Création de calque
+// CrÃ©ation de calque
     struct calque *base;
 
 // Initialisation du calque
@@ -95,7 +95,7 @@ int main(int argc, char **argv)
 
 
 
-// Version lissée si lissage activé en option.
+// Version lissÃ©e si lissage activÃ© en option.
 
     if (option_lissage != 0) {
         // lissage_calque(degre_lissage, base_lisse, seuil_rouge, seuil_vert, seuil_bleu);
@@ -112,4 +112,3 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-// Fin de fichier.

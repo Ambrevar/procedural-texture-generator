@@ -46,7 +46,7 @@ void free_calque(struct calque* s){
     free(s->v);
 }
 
-// Calque aléatoire GS
+// Calque alÃ©atoire GS
 calque* generer_calque_alea(// int seed,
                     struct calque *c){
 
@@ -125,7 +125,7 @@ void generer_calque_travail(int frequence,
 //    enregistrer_bmp(mes_calques[2], "bitmap/octave2.bmp");
 //    enregistrer_bmp(mes_calques[3], "bitmap/octave3.bmp");
 
-// Libération mémoire
+// LibÃ©ration mÃ©moire
     free_calque(random);
 
     for (i=0; i<octaves; i++) {

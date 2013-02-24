@@ -8,7 +8,7 @@
 
 int interpol(int y1, int y2, int n, int delta){
 
-    // interpolation non linéaire
+    // interpolation non linÃ©aire
     if (n==0)
         return y1;
     if (n==1)
@@ -23,7 +23,7 @@ int interpol(int y1, int y2, int n, int delta){
 
 	//////////////////////////////////////////////
 
-// Interpolation linéaire. Alternative inutilisée.
+// Interpolation linÃ©aire. Alternative inutilisÃ©e.
     /*if (n!=0)
         return y1+delta*((float)y2-(float)y1)/(float)n;
     else
