@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 layer *
-init_layer (int size, double persistance)
+init_layer (long size, double persistance)
 {
     layer *current_layer = malloc (sizeof (layer));
 
@@ -16,7 +16,7 @@ init_layer (int size, double persistance)
         return NULL;
     }
 
-    current_layer->v = malloc (size * sizeof (int *));
+    current_layer->v = malloc (size * sizeof (long *));
 
     if (!current_layer->v)
     {
@@ -25,10 +25,10 @@ init_layer (int size, double persistance)
     }
 
     // TODO: do only one size*size malloc here.
-    int i, j;
+    long i, j;
     for (i = 0; i < size; i++)
     {
-        current_layer->v[i] = malloc (size * sizeof (int));
+        current_layer->v[i] = malloc (size * sizeof (long));
         if (!current_layer->v[i])
         {
             trace ("Allocation error.");

@@ -23,11 +23,11 @@ main (int argc, char **argv)
     }
 
     // Texture parameter.
-    int seed;
-    int octaves;
-    int frenquency;
+    long seed;
+    long octaves;
+    long frequency;
     double persistance;
-    int width;
+    long width;
 
     Uint8 threshold_red;
     Uint8 threshold_green;
@@ -37,11 +37,12 @@ main (int argc, char **argv)
     color color2;
     color color3;
 
-
-    int option_lissage;
-    int degre_lissage;
+    long option_lissage;
+    long degre_lissage;
 
     char attribute[100] = "";
+    long value;
+    double fvalue;
 
     FILE *file = NULL;
 
@@ -49,25 +50,25 @@ main (int argc, char **argv)
 
     if (file != NULL)
     {
-        fscanf (file, "%s %d\n", attribute, &seed);
-        fscanf (file, "%s %d\n", attribute, &octaves);
-        fscanf (file, "%s %d\n", attribute, &frenquency);
-        fscanf (file, "%s %lf\n", attribute, &persistance);
-        fscanf (file, "%s %d\n", attribute, &width);
-        fscanf (file, "%s %d\n", attribute, &threshold_red);
-        fscanf (file, "%s %d\n", attribute, &threshold_green);
-        fscanf (file, "%s %d\n", attribute, &threshold_blue);
-        fscanf (file, "%s %d\n", attribute, &color1.red);
-        fscanf (file, "%s %d\n", attribute, &color1.green);
-        fscanf (file, "%s %d\n", attribute, &color1.blue);
-        fscanf (file, "%s %d\n", attribute, &color2.red);
-        fscanf (file, "%s %d\n", attribute, &color2.green);
-        fscanf (file, "%s %d\n", attribute, &color2.blue);
-        fscanf (file, "%s %d\n", attribute, &color3.red);
-        fscanf (file, "%s %d\n", attribute, &color3.green);
-        fscanf (file, "%s %d\n", attribute, &color3.blue);
-        fscanf (file, "%s %d\n", attribute, &option_lissage);
-        fscanf (file, "%s %d\n", attribute, &degre_lissage);
+        fscanf (file, "%s %ld\n", attribute, &value); seed = value;
+        fscanf (file, "%s %ld\n", attribute, &value); octaves = value;
+        fscanf (file, "%s %ld\n", attribute, &value ); frequency = value;
+        fscanf (file, "%s %lf\n", attribute, &fvalue); persistance = fvalue;
+        fscanf (file, "%s %ld\n", attribute, &value); width = value;
+        fscanf (file, "%s %ld\n", attribute, &value); threshold_red = value;
+        fscanf (file, "%s %ld\n", attribute, &value); threshold_green = value;
+        fscanf (file, "%s %ld\n", attribute, &value); threshold_blue = value;
+        fscanf (file, "%s %ld\n", attribute, &value); color1.red = value;
+        fscanf (file, "%s %ld\n", attribute, &value); color1.green = value;
+        fscanf (file, "%s %ld\n", attribute, &value); color1.blue = value;
+        fscanf (file, "%s %ld\n", attribute, &value); color2.red = value;
+        fscanf (file, "%s %ld\n", attribute, &value); color2.green = value;
+        fscanf (file, "%s %ld\n", attribute, &value); color2.blue = value;
+        fscanf (file, "%s %ld\n", attribute, &value); color3.red = value;
+        fscanf (file, "%s %ld\n", attribute, &value); color3.green = value;
+        fscanf (file, "%s %ld\n", attribute, &value); color3.blue = value;
+        fscanf (file, "%s %ld\n", attribute, &option_lissage);
+        fscanf (file, "%s %ld\n", attribute, &degre_lissage);
 
         fclose (file);
     }
@@ -78,11 +79,35 @@ main (int argc, char **argv)
         return 1;
     }
 
+
+    /* fprintf (stderr, "%d\n", seed); */
+    /* fprintf (stderr, "%ld\n", octaves); */
+    /* fprintf (stderr, "%ld\n", frequency); */
+    /* fprintf (stderr, "%lf\n",persistance); */
+    /* fprintf (stderr, "%ld\n", width); */
+    /* fprintf (stderr, "%ld\n", threshold_red); */
+    /* fprintf (stderr, "%ld\n", threshold_green); */
+    /* fprintf (stderr, "%ld\n", threshold_blue); */
+    /* fprintf (stderr, "%ld\n", color1.red); */
+    /* fprintf (stderr, "%ld\n", color1.green); */
+    /* fprintf (stderr, "%ld\n", color1.blue); */
+    /* fprintf (stderr, "%ld\n", color2.red); */
+    /* fprintf (stderr, "%ld\n", color2.green); */
+    /* fprintf (stderr, "%ld\n", color2.blue); */
+    /* fprintf (stderr, "%ld\n", color3.red); */
+    /* fprintf (stderr, "%ld\n", color3.green); */
+    /* fprintf (stderr, "%ld\n", color3.blue); */
+    /* fprintf (stderr, "%d\n", option_lissage); */
+    /* fprintf (stderr, "%d\n", degre_lissage); */
+
+
     // Génération aléatoire : utilisation de la graine.
     srand (seed);
 
     // Création de layer
     struct layer *base;
+
+    trace("Init.");
 
     // Initialisation du layer
     // TODO: second arg should be persistance.
@@ -93,15 +118,22 @@ main (int argc, char **argv)
     }
 
 
+    trace("Random layer.");
+
     // Transformation via l'algorithme de Perlin.
     layer *random_layer = generate_random_layer (base);
     save_bmp (random_layer, "random.bmp");
-    generate_work_layer (frenquency, octaves, persistance, base,
+    trace("Work layer.");
+    generate_work_layer (frequency, octaves, persistance, base,
                          random_layer);
 
+    trace("GS.");
+
     save_bmp (base, "resultat_GS.bmp");
+    trace("RGB.");
     save_bmp_rgb (base, "resultat_RGB.bmp", threshold_red, threshold_green,
                   threshold_blue, color1, color2, color3);
+    trace("Alt.");
     save_bmp_alt (base, "resultat_alt.bmp", threshold_red, color1, color2);
 
 

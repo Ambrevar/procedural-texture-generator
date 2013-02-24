@@ -25,7 +25,7 @@ typedef struct color
 } color;
 
 
-struct layer *init_layer (int, double);
+struct layer *init_layer (long, double);
 void free_layer (struct layer *);
 
 layer *generate_random_layer (struct layer *c);
