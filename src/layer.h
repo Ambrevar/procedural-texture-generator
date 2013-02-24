@@ -17,14 +17,6 @@ typedef struct layer
     double persistance;
 } layer;
 
-typedef struct color
-{
-    Uint8 red;
-    Uint8 green;
-    Uint8 blue;
-} color;
-
-
 struct layer *init_layer (long, double);
 void free_layer (struct layer *);
 

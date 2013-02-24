@@ -33,13 +33,16 @@ OBJ = ${SRC:.c=.o}
 ## Rules
 ##==============================================================================
 
-all: options ${BIN}
+all: options ${BIN} creator
 
 options:
 	@echo ${BIN} build options:
 	@echo "CFLAGS  = ${CFLAGS_ALL}"
 	@echo "LDFLAGS = ${LDFLAGS_ALL}"
 	@echo "CC      = ${CC}"
+
+creator: creator.c
+	@${CC} ${CFLAGS_ALL} ${LDFLAGS_ALL} -o $@
 
 ${BIN}: ${OBJ}
 	@${CC} ${LDFLAGS_ALL} $^ -o $@
@@ -48,7 +51,7 @@ ${BIN}: ${OBJ}
 	@${CC} ${CFLAGS_ALL} $< -c -o $@
 
 clean:
-	@rm -f ${BIN} ${OBJ}
+	@rm -f ${BIN} ${OBJ} creator
 
 .PHONY=all options clean
 

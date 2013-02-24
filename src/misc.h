@@ -8,6 +8,7 @@
 #ifndef MISC_H
 #    define MISC_H 1
 #    include <SDL/SDL.h>
+#    include "config.h"
 
 void
 trace (const char *s);

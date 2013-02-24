@@ -1,6 +1,7 @@
 #include "layer.h"
 #include "misc.h"
 #include "interpol.h"
+#include "config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
