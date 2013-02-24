@@ -2,9 +2,16 @@
 #include <SDL/SDL.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <errno.h>
+#include <inttypes.h>
 #include "config.h"
 
-#define SUBSTR_MAX 1024
+#define LINE_SEED 1
+#define LINE_OCTAVES 2
+#define LINE_FREQUENCY 3
+#define LINE_PERSISTENCE 4 
+#define LINE_WIDTH 5
+#define LINE_SMOOTHING 18
 
 void
 trace (const char *s)
@@ -63,23 +70,80 @@ int main(int argc, char** argv)
     char *str1, *str2, *token, *subtoken;
     char *saveptr1, *saveptr2;
     int j;
+    int line=0;
 
     for (j = 1, str1 = file_buf; ; j++, str1 = NULL) {
         token = strtok_r(str1, "\n", &saveptr1);
         if (token == NULL)
             break;
 
-        printf("|%s\n", token);
-
+        line++;
+        str2 = token;
         subtoken = strtok_r(str2, " ", &saveptr2);
-        if (subtoken == NULL)
-            printf(" --> %s\n", subtoken);
-        /* for (str2 = token; ; str2 = NULL) { */
-        /*     subtoken = strtok_r(str2, " ", &saveptr2); */
-        /*     if (subtoken == NULL) */
-        /*         break; */
-        /*     printf(" --> %s\n", subtoken); */
-        /* } */
+        if (subtoken != NULL)
+        {
+
+            switch (line)
+            {
+
+            case LINE_PERSISTENCE:
+            {
+                double dbuf = strtod(subtoken, NULL);
+                if (errno == ERANGE)
+                {
+                    perror("Could not convert string to double.");
+                    continue;
+                }
+                printf("[%s|%f]\n", subtoken, dbuf);
+                fwrite(&dbuf, sizeof(double), 1, outfile);                
+                break;
+            }
+
+            case LINE_SEED:
+            case LINE_WIDTH:
+            {
+                uint32_t buf = strtol(subtoken, NULL, 0);
+                if (errno == ERANGE)
+                {
+                    perror("Could not convert string to integer.");
+                    continue;
+                }
+                printf("[%s|%" PRIu32 "]\n", subtoken, buf);
+                fwrite(&buf, sizeof(uint32_t), 1, outfile);
+                break;
+            }
+
+            case LINE_OCTAVES:
+            case LINE_FREQUENCY:
+            case LINE_SMOOTHING:
+            {
+                uint16_t buf = strtol(subtoken, NULL, 0);
+                if (errno == ERANGE)
+                {
+                    perror("Could not convert string to integer.");
+                    continue;
+                }
+                printf("[%s|%" PRIu16 "]\n", subtoken, buf);
+                fwrite(&buf, sizeof(uint8_t), 1, outfile);
+                break;
+            }
+
+            default:
+            {
+                uint8_t buf = strtol(subtoken, NULL, 0);
+                if (errno == ERANGE)
+                {
+                    perror("Could not convert string to integer.");
+                    continue;
+                }
+                printf("[%s|%" PRIu8 "]\n", subtoken, buf);
+                fwrite(&buf, sizeof(uint8_t), 1, outfile);
+                break;
+            }
+
+            }
+        }
+            
     }
 
     free(file_buf);

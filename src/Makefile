@@ -42,7 +42,7 @@ options:
 	@echo "CC      = ${CC}"
 
 creator: creator.c
-	@${CC} ${CFLAGS_ALL} ${LDFLAGS_ALL} -o $@
+	@${CC} ${CFLAGS_ALL} $^ -o $@
 
 ${BIN}: ${OBJ}
 	@${CC} ${LDFLAGS_ALL} $^ -o $@
