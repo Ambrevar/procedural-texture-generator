@@ -5,10 +5,11 @@
 #include <stdlib.h>
 #include <math.h>
 
+// TODO: what are the two spline conditions?
 long
 interpol (long y1, long y2, long step, long delta)
 {
-    /* Polynomial interpolation. */
+    /* Spline. */
     if (step == 0)
         return y1;
     if (step == 1)
@@ -16,10 +17,8 @@ interpol (long y1, long y2, long step, long delta)
 
     double a = (double) delta / step;
 
-    /* TODO: test without pow. */
-
-    double fac1 = 3 * pow (1 - a, 2) - 2 * pow (1 - a, 3);
-    double fac2 = 3 * pow (a, 2) - 2 * pow (a, 3);
+    double fac1 = 3 * (1-a)*(1-a) - 2 * (1-a)*(1-a)*(1-a);
+    double fac2 = 3 * a*a - 2 * a*a*a;
 
     return y1 * fac1 + y2 * fac2;
 
