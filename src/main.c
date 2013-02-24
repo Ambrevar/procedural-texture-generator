@@ -13,12 +13,6 @@ usage ()
           "Option list:\n" "  -h: show this help.\n");
 }
 
-void
-trace (const char *s)
-{
-    fprintf (stderr, "==> %s\n", s);
-}
-
 int
 main (int argc, char **argv)
 {
@@ -28,16 +22,16 @@ main (int argc, char **argv)
         return 0;
     }
 
-    // Paramètres de la texture (valeurs d'entrée)
+    // Texture parameter.
     int seed;
     int octaves;
     int frenquency;
     double persistance;
     int width;
 
-    uint8_t threshold_red;
-    uint8_t threshold_green;
-    uint8_t threshold_blue;
+    Uint8 threshold_red;
+    Uint8 threshold_green;
+    Uint8 threshold_blue;
 
     color color1;
     color color2;
@@ -47,44 +41,40 @@ main (int argc, char **argv)
     int option_lissage;
     int degre_lissage;
 
-    char chaine[100] = "";
+    char attribute[100] = "";
 
-    FILE *fichier = NULL;
-    FILE *errorlog = NULL;
+    FILE *file = NULL;
 
-    // fichier = fopen("test.ptx", "r");
-    fichier = fopen (argv[1], "r");
+    file = fopen (argv[1], "r");
 
-    if (fichier != NULL)
+    if (file != NULL)
     {
-        fscanf (fichier, "%s %d\n", chaine, &seed);
-        fscanf (fichier, "%s %d\n", chaine, &octaves);
-        fscanf (fichier, "%s %d\n", chaine, &frenquency);
-        fscanf (fichier, "%s %lf\n", chaine, &persistance);
-        fscanf (fichier, "%s %d\n", chaine, &width);
-        fscanf (fichier, "%s %d\n", chaine, &threshold_red);
-        fscanf (fichier, "%s %d\n", chaine, &threshold_green);
-        fscanf (fichier, "%s %d\n", chaine, &threshold_blue);
-        fscanf (fichier, "%s %d\n", chaine, &color1.red);
-        fscanf (fichier, "%s %d\n", chaine, &color1.green);
-        fscanf (fichier, "%s %d\n", chaine, &color1.blue);
-        fscanf (fichier, "%s %d\n", chaine, &color2.red);
-        fscanf (fichier, "%s %d\n", chaine, &color2.green);
-        fscanf (fichier, "%s %d\n", chaine, &color2.blue);
-        fscanf (fichier, "%s %d\n", chaine, &color3.red);
-        fscanf (fichier, "%s %d\n", chaine, &color3.green);
-        fscanf (fichier, "%s %d\n", chaine, &color3.blue);
-        fscanf (fichier, "%s %d\n", chaine, &option_lissage);
-        fscanf (fichier, "%s %d\n", chaine, &degre_lissage);
+        fscanf (file, "%s %d\n", attribute, &seed);
+        fscanf (file, "%s %d\n", attribute, &octaves);
+        fscanf (file, "%s %d\n", attribute, &frenquency);
+        fscanf (file, "%s %lf\n", attribute, &persistance);
+        fscanf (file, "%s %d\n", attribute, &width);
+        fscanf (file, "%s %d\n", attribute, &threshold_red);
+        fscanf (file, "%s %d\n", attribute, &threshold_green);
+        fscanf (file, "%s %d\n", attribute, &threshold_blue);
+        fscanf (file, "%s %d\n", attribute, &color1.red);
+        fscanf (file, "%s %d\n", attribute, &color1.green);
+        fscanf (file, "%s %d\n", attribute, &color1.blue);
+        fscanf (file, "%s %d\n", attribute, &color2.red);
+        fscanf (file, "%s %d\n", attribute, &color2.green);
+        fscanf (file, "%s %d\n", attribute, &color2.blue);
+        fscanf (file, "%s %d\n", attribute, &color3.red);
+        fscanf (file, "%s %d\n", attribute, &color3.green);
+        fscanf (file, "%s %d\n", attribute, &color3.blue);
+        fscanf (file, "%s %d\n", attribute, &option_lissage);
+        fscanf (file, "%s %d\n", attribute, &degre_lissage);
 
-        fclose (fichier);
+        fclose (file);
     }
     else
     {
-        errorlog = fopen ("error.txt", "a");
-        if (errorlog != NULL)
-            fprintf (errorlog, "\nImpossible d'ouvrir le fichier.\n");
-        fclose (errorlog);
+        trace("Could not open file:");
+        trace(argv[1]);
         return 1;
     }
 

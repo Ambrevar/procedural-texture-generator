@@ -7,14 +7,15 @@
 
 #ifndef MISC_H
 #    define MISC_H 1
-
-
 #    include <SDL/SDL.h>
 
-void colorerPixel (SDL_Surface * screen, int x, int y, Uint32 color);
+void
+trace (const char *s);
 
-unsigned char custom_random (double a);
-unsigned char randomgen (int max, int seed);
+void color_pixel (SDL_Surface * screen, int x, int y, Uint32 target_color);
+
+unsigned long custom_random (unsigned long max);
+unsigned long randomgen (unsigned long max, unsigned long seed);
 
 void save_bmp (struct layer *c, const char *filename);
 

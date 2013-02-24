@@ -1,6 +1,5 @@
 #include "layer.h"
 #include "misc.h"
-#include "main.h"
 #include "interpol.h"
 
 #include <stdio.h>
@@ -54,7 +53,7 @@ free_layer (struct layer *s)
     free (s->v);
 }
 
-// Layer aléatoire GS
+/* Gray scale */
 layer *
 generate_random_layer (struct layer *c)
 {
@@ -70,14 +69,13 @@ generate_random_layer (struct layer *c)
 
     for (i = 0; i < size; i++)
         for (j = 0; j < size; j++)
+        {
             random_layer->v[i][j] = custom_random (256);
-    // random->v[i][j]=randomgen(seed,255);
+            /* random_layer->v[i][j] = randomgen(seed, 255); */
+        }
 
     return random_layer;
 }
-
-
-
 
 void
 generate_work_layer (long frequency,

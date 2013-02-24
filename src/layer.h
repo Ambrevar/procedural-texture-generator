@@ -8,20 +8,20 @@
 #ifndef LAYER_H
 #    define LAYER_H 1
 
-#    include <stdint.h>
+#    include <SDL/SDL.h>
 
 typedef struct layer
 {
-    uint8_t **v;
+    Uint8 **v;
     long size;
     double persistance;
 } layer;
 
 typedef struct color
 {
-    uint8_t red;
-    uint8_t green;
-    uint8_t blue;
+    Uint8 red;
+    Uint8 green;
+    Uint8 blue;
 } color;
 
 
