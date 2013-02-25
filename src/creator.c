@@ -1,6 +1,10 @@
 /**
  * Copyright © 2013 Pierre Neidhardt
  * See LICENSE file for copyright and license details.
+ *
+ * This very simple program parses the input file, take the first number on
+ * every line and writes the binary value to the output file. Default type is
+ * uint8_t, but other types can be defined when SPECIAL LINES are defined.
  */
 #include <stdlib.h>
 #include <SDL/SDL.h>
@@ -9,6 +13,7 @@
 #include <errno.h>
 #include <inttypes.h>
 
+/* SPECIAL LINES */
 #define LINE_WIDTH 1
 #define LINE_HEIGHT 2
 #define LINE_SEED 3

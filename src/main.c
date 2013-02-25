@@ -1,6 +1,12 @@
 /**
  * Copyright © 2013 Pierre Neidhardt
  * See LICENSE file for copyright and license details.
+ *
+ * This program takes a procural textures binary descriptor (ptx) file as
+ * argument, and creates several graphic files showing different steps of the
+ * process.
+ *
+ * It uses Perlin algorithm. See README for more details.
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,19 +29,24 @@ typedef struct color
 
 /* This is the sume of all parameter sizes. */
 #define TEXTURE_FILE_SIZE 29
-/* #define TEXTURE_FILE_SIZE 34 */
 
-/* Texture parameters. */
+/**
+ * Texture parameters. Note that the persistence is given as two positive
+ * integers, the numerator and the denominator. The final persistence is
+ *
+ *   (double) persistence_num / (double) persistence_den
+ *
+ * For now only square textures are generated, so we do not use height. It would
+ * not require much to implement rectangle support.
+ */
 /* TODO: decrease size of the seed? */
 typedef struct texture_parameter
 {
     tsize_t width;
     tsize_t height;
     Uint16 seed;
-    /* Uint32 seed; */
     Uint16 octaves;
     Uint16 frequency;
-    /* double persistence; */
     Uint8 persistence_num;
     Uint8 persistence_den;
     Uint8 threshold_red;
@@ -45,7 +56,6 @@ typedef struct texture_parameter
     color color2;
     color color3;
     Uint8 smoothing;
-    /* Uint16 smoothing; */
 } texture_parameter;
 
 typedef struct layer
@@ -54,7 +64,7 @@ typedef struct layer
     tsize_t size;
 } layer;
 
-/* Quick strings. Having length is time saving. */
+/* Quick strings. Having length is time saving compared to strlen(). */
 typedef struct qstring
 {
     char *val;
