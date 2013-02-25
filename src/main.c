@@ -36,7 +36,7 @@ trace (const char *s)
 unsigned long
 randomgen (unsigned long max)
 {
-    return (unsigned long) ( ( ((double)rand()) / RAND_MAX) * max);
+    return (unsigned long) ((((double) rand ()) / RAND_MAX) * max);
 }
 
 /**
@@ -59,7 +59,7 @@ randomgen (unsigned long max)
  *  - offset must be "small" compared to max;
  *  - factor must be close to the square root of max.
  */
-unsigned long 
+unsigned long
 custom_randomgen (unsigned long max, unsigned long seed)
 {
     static unsigned long random_number = 0;
@@ -78,7 +78,8 @@ custom_randomgen (unsigned long max, unsigned long seed)
 
 /* SDL function to color a specific pixel on "screen". */
 void
-color_pixel (SDL_Surface * screen, int x, int y, Uint8 red, Uint8 green, Uint8 blue)
+color_pixel (SDL_Surface * screen, int x, int y, Uint8 red, Uint8 green,
+             Uint8 blue)
 {
     Uint32 map = SDL_MapRGB (screen->format, red, green, blue);
     *((Uint32 *) (screen->pixels) + x + y * screen->w) = map;
@@ -90,7 +91,8 @@ void
 save_bmp (struct layer *current_layer, const char *filename)
 {
     SDL_Surface *screen =
-        SDL_CreateRGBSurface (SDL_SWSURFACE, current_layer->size, current_layer->size, 32, 0, 0, 0,
+        SDL_CreateRGBSurface (SDL_SWSURFACE, current_layer->size,
+                              current_layer->size, 32, 0, 0, 0,
                               0);
     if (!screen)
         trace ("SDL error on SDL_CreateRGBSurface");
@@ -98,7 +100,8 @@ save_bmp (struct layer *current_layer, const char *filename)
     long i, j;
     for (i = 0; i < current_layer->size; i++)
         for (j = 0; j < current_layer->size; j++)
-            color_pixel (screen, i, j, current_layer->v[i][j], current_layer->v[i][j], current_layer->v[i][j]);
+            color_pixel (screen, i, j, current_layer->v[i][j],
+                         current_layer->v[i][j], current_layer->v[i][j]);
 
     SDL_SaveBMP (screen, filename);
     SDL_FreeSurface (screen);
@@ -106,11 +109,12 @@ save_bmp (struct layer *current_layer, const char *filename)
 
 void
 save_bmp_rgb (layer * current_layer, const char *filename,
-              Uint8 threshold_red, Uint8 threshold_green, Uint8 threshold_blue,
-              color color1, color color2, color color3)
+              Uint8 threshold_red, Uint8 threshold_green,
+              Uint8 threshold_blue, color color1, color color2, color color3)
 {
 
-    SDL_Surface *screen = SDL_CreateRGBSurface (SDL_SWSURFACE, current_layer->size,
+    SDL_Surface *screen =
+        SDL_CreateRGBSurface (SDL_SWSURFACE, current_layer->size,
                               current_layer->size, 32, 0, 0, 0, 0);
     if (!screen)
         trace ("SDL error on SDL_CreateRGBSurface");
@@ -131,8 +135,9 @@ save_bmp_rgb (layer * current_layer, const char *filename,
             }
             else if (current_layer->v[i][j] < threshold_green)
             {
-                f = (double) (current_layer->v[i][j] - threshold_red) / (threshold_green -
-                                                             threshold_red);
+                f = (double) (current_layer->v[i][j] -
+                              threshold_red) / (threshold_green -
+                                                threshold_red);
                 red = (Uint8) (color1.red * (1 - f) + color2.red * (f));
                 green = (Uint8) (color1.green * (1 - f) + color2.green * (f));
                 blue = (Uint8) (color1.blue * (1 - f) + color2.blue * (f));
@@ -148,8 +153,8 @@ save_bmp_rgb (layer * current_layer, const char *filename,
             }
             else
             {
-                f = (double) (current_layer->v[i][j] - threshold_blue) / (255 -
-                                                              threshold_blue);
+                f = (double) (current_layer->v[i][j] -
+                              threshold_blue) / (255 - threshold_blue);
                 red = color3.red;
                 green = color3.green;
                 blue = color3.blue;
@@ -165,11 +170,13 @@ save_bmp_rgb (layer * current_layer, const char *filename,
 
 void
 save_bmp_alt (layer * current_layer,
-              const char *filename, Uint8 threshold, color color1, color color2)
+              const char *filename, Uint8 threshold, color color1,
+              color color2)
 {
 
     SDL_Surface *screen =
-        SDL_CreateRGBSurface (SDL_SWSURFACE, current_layer->size, current_layer->size, 32, 0, 0, 0,
+        SDL_CreateRGBSurface (SDL_SWSURFACE, current_layer->size,
+                              current_layer->size, 32, 0, 0, 0,
                               0);
     if (!screen)
         trace ("SDL error on SDL_CreateRGBSurface");
@@ -181,7 +188,7 @@ save_bmp_alt (layer * current_layer,
             Uint8 red, green, blue;
             double f;
 
-            double value = fmod ( current_layer->v[i][j] , threshold);
+            double value = fmod (current_layer->v[i][j], threshold);
             if (value > threshold / 2)
                 value = threshold - value;
 
@@ -210,18 +217,18 @@ interpol (long y1, long y2, long step, long delta)
 
     double a = (double) delta / step;
 
-    double fac1 = 3 * (1-a)*(1-a) - 2 * (1-a)*(1-a)*(1-a);
-    double fac2 = 3 * a*a - 2 * a*a*a;
+    double fac1 = 3 * (1 - a) * (1 - a) - 2 * (1 - a) * (1 - a) * (1 - a);
+    double fac2 = 3 * a * a - 2 * a * a * a;
 
     return y1 * fac1 + y2 * fac2;
 
     /* Linear interpolation. Unused. */
     /*
-      if (n!=0)
+       if (n!=0)
        return y1+delta*((double)y2-(double)y1)/(double)n;
        else
        return y1;
-    */
+     */
 }
 
 long
@@ -317,10 +324,10 @@ generate_random_layer (struct layer *c, unsigned long seed)
     random_layer = init_layer (size);
     if (!random_layer)
     {
-        trace("Could not init random layer.");
+        trace ("Could not init random layer.");
         return c;
     }
-    
+
     /* Init seeds for both std and home-made RNG. */
     srand (seed);
     custom_randomgen (0, seed);
@@ -341,7 +348,7 @@ generate_work_layer (long frequency,
                      layer * current_layer, layer * random_layer)
 {
     long size = current_layer->size;
-    long i, j, n, f_courante = frequency;
+    long i, j, n, current_frequency = frequency;
     double sum_persistences = 0;
 
     layer **work_layers = malloc (octaves * sizeof (struct layer *));
@@ -355,15 +362,15 @@ generate_work_layer (long frequency,
         for (i = 0; i < size; i++)
         {
             for (j = 0; j < size; j++)
-                work_layers[n]->v[i][j] = 
-                    interpol_val (i, j, f_courante, random_layer);
+                work_layers[n]->v[i][j] =
+                    interpol_val (i, j, current_frequency, random_layer);
         }
 
-        f_courante *= frequency;
-        if (n==0)
+        current_frequency *= frequency;
+        if (n == 0)
             work_persistence[n] = persistence;
         else
-            work_persistence[n] = work_persistence[n-1] * persistence;
+            work_persistence[n] = work_persistence[n - 1] * persistence;
         sum_persistences += work_persistence[n];
     }
 
@@ -404,7 +411,7 @@ smooth_layer (long factor, layer * current_layer)
 
     long size = current_layer->size;
     long damping;
-    long x, y; 
+    long x, y;
     long k, l;
     double pixel_val;
 
@@ -413,7 +420,7 @@ smooth_layer (long factor, layer * current_layer)
 
     if (!smoothed_layer)
     {
-        trace("Could not init smoothed layer.");
+        trace ("Could not init smoothed layer.");
         return current_layer;
     }
 
@@ -452,66 +459,66 @@ main (int argc, char **argv)
     file = fopen (argv[1], "rb");
     if (file == NULL)
     {
-        trace("Could not open file:");
-        trace(argv[1]);
+        trace ("Could not open file:");
+        trace (argv[1]);
         return EXIT_FAILURE;
     }
 
-    fseek(file, 0, SEEK_END);
-    long file_size = ftell(file);
-    fseek(file, 0, SEEK_SET);
+    fseek (file, 0, SEEK_END);
+    long file_size = ftell (file);
+    fseek (file, 0, SEEK_SET);
 
     if (file_size != TEXTURE_FILE_SIZE)
     {
-        trace("Wrongly formatted texture file.");
+        trace ("Wrongly formatted texture file.");
         return EXIT_FAILURE;
     }
-    
-    char * file_buf = malloc (file_size);
+
+    char *file_buf = malloc (file_size);
     if (file_buf == NULL)
     {
-        perror(argv[1]);
+        perror (argv[1]);
         return EXIT_FAILURE;
     }
 
-    fread( file_buf, 1, file_size, file);
-    fclose(file);
+    fread (file_buf, 1, file_size, file);
+    fclose (file);
 
-    // Texture parameters.
+    /* Texture parameters. */
     Uint32 seed;
     Uint16 octaves;
     Uint16 frequency;
     double persistence;
     Uint32 width;
-    Uint8  threshold_red;
-    Uint8  threshold_green;
-    Uint8  threshold_blue;
-    color  color1;
-    color  color2;
-    color  color3;
+    Uint8 threshold_red;
+    Uint8 threshold_green;
+    Uint8 threshold_blue;
+    color color1;
+    color color2;
+    color color3;
     Uint16 smoothing;
 
-    char * option_ptr = file_buf;
+    char *option_ptr = file_buf;
 #define READ_OPT(opt,size) memcpy(&(opt), option_ptr, size); option_ptr += size;
 
-    READ_OPT(seed, 4);
-    READ_OPT(octaves, 2);
-    READ_OPT(frequency, 2);
-    READ_OPT(persistence, 8);
-    READ_OPT(width, 4);
-    READ_OPT(threshold_red, 1);
-    READ_OPT(threshold_green, 1);
-    READ_OPT(threshold_blue, 1);
-    READ_OPT(color1.red, 1);
-    READ_OPT(color1.green, 1);
-    READ_OPT(color1.blue, 1);
-    READ_OPT(color2.red, 1);
-    READ_OPT(color2.green, 1);
-    READ_OPT(color2.blue, 1);
-    READ_OPT(color3.red, 1);
-    READ_OPT(color3.green, 1);
-    READ_OPT(color3.blue, 1);
-    READ_OPT(smoothing, 2);
+    READ_OPT (seed, 4);
+    READ_OPT (octaves, 2);
+    READ_OPT (frequency, 2);
+    READ_OPT (persistence, 8);
+    READ_OPT (width, 4);
+    READ_OPT (threshold_red, 1);
+    READ_OPT (threshold_green, 1);
+    READ_OPT (threshold_blue, 1);
+    READ_OPT (color1.red, 1);
+    READ_OPT (color1.green, 1);
+    READ_OPT (color1.blue, 1);
+    READ_OPT (color2.red, 1);
+    READ_OPT (color2.green, 1);
+    READ_OPT (color2.blue, 1);
+    READ_OPT (color3.red, 1);
+    READ_OPT (color3.green, 1);
+    READ_OPT (color3.blue, 1);
+    READ_OPT (smoothing, 2);
 
     /* fprintf (stderr, "%ld\n", seed); */
     /* fprintf (stderr, "%ld\n", octaves); */
@@ -532,35 +539,33 @@ main (int argc, char **argv)
     /* fprintf (stderr, "%ld\n", color3.blue); */
     /* fprintf (stderr, "%ld\n", smoothing); */
 
-
-    // Création de layer
+    /* The base layer will contain our final result. */
+    trace ("Init.");
     struct layer *base;
-
-    trace("Init.");
 
     /* The base layer is empty at the beginning. It will be generated upon a */
     /* random layer. */
     base = init_layer (width);
     if (!base)
     {
-        trace("Init layer failed.");
+        trace ("Init layer failed.");
         return 1;
     }
 
     /* Transform base using Perlin algorithm upon a randomly generated layer. */
-    trace("Random layer.");
+    trace ("Random layer.");
     layer *random_layer = generate_random_layer (base, seed);
     save_bmp (random_layer, OUTPUT_RANDOM);
-    generate_work_layer (frequency, octaves, persistence, base,
-                         random_layer);
+    generate_work_layer (frequency, octaves, persistence, base, random_layer);
 
-    trace("GS.");
-
+    trace ("GS.");
     save_bmp (base, OUTPUT_GS);
-    trace("RGB.");
+    trace ("RGB.");
+
     save_bmp_rgb (base, OUTPUT_RGB, threshold_red, threshold_green,
                   threshold_blue, color1, color2, color3);
-    trace("Alt.");
+
+    trace ("Alt.");
     save_bmp_alt (base, OUTPUT_ALT, threshold_red, color1, color2);
 
     /* Smoothed version if option is non-zero. */
@@ -579,6 +584,6 @@ main (int argc, char **argv)
     }
 
 
-    free(file_buf);
+    free (file_buf);
     return EXIT_SUCCESS;
 }

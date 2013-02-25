@@ -6,9 +6,9 @@
  ******************************************************************************/
 
 #ifndef PROCTEXT_H
-#define PROCTEXT_H 1
+#    define PROCTEXT_H 1
 
-#include <SDL/SDL.h>
+#    include <SDL/SDL.h>
 
 /* TODO: replace persistence double with a Uint8/Uint8 fraction. */
 /**
@@ -36,7 +36,7 @@
  */
 
 
-#define TEXTURE_FILE_SIZE 34
+#    define TEXTURE_FILE_SIZE 34
 
 typedef struct color
 {
@@ -46,18 +46,19 @@ typedef struct color
 } color;
 
 /* Texture parameters. */
-typedef struct texture_param {
+typedef struct texture_param
+{
     Uint32 seed;
     Uint16 octaves;
     Uint16 frequency;
     double persistence;
     Uint32 width;
-    Uint8  threshold_red;
-    Uint8  threshold_green;
-    Uint8  threshold_blue;
-    color  color1;
-    color  color2;
-    color  color3;
+    Uint8 threshold_red;
+    Uint8 threshold_green;
+    Uint8 threshold_blue;
+    color color1;
+    color color2;
+    color color3;
     Uint16 smoothing;
 } texture_param;
 
