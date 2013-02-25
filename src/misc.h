@@ -15,8 +15,8 @@ trace (const char *s);
 
 void color_pixel (SDL_Surface * screen, int x, int y, Uint32 target_color);
 
-unsigned long custom_random (unsigned long max);
-unsigned long randomgen (unsigned long max, unsigned long seed);
+unsigned long randomgen (unsigned long max);
+unsigned long custom_randomgen (unsigned long max, unsigned long seed);
 
 void save_bmp (struct layer *c, const char *filename);
 

@@ -131,9 +131,6 @@ main (int argc, char **argv)
     /* fprintf (stderr, "%ld\n", smoothing); */
 
 
-    // Génération aléatoire : utilisation de la graine.
-    srand (seed);
-
     // Création de layer
     struct layer *base;
 
@@ -152,7 +149,7 @@ main (int argc, char **argv)
     trace("Random layer.");
 
     // Transformation via l'algorithme de Perlin.
-    layer *random_layer = generate_random_layer (base);
+    layer *random_layer = generate_random_layer (base, seed);
     save_bmp (random_layer, OUTPUT_RANDOM);
     generate_work_layer (frequency, octaves, persistence, base,
                          random_layer);

@@ -23,13 +23,14 @@ color_pixel (SDL_Surface * screen, int x, int y, Uint32 target_color)
  * Returns a value between 0 and max inclusive.
  */
 unsigned long
-custom_random (unsigned long max)
+randomgen (unsigned long max)
 {
     return (unsigned long) ( ( ((double)rand()) / RAND_MAX) * max);
 }
 
 /**
- * Returns a value between 0 and max inclusive.
+ * Returns a value between 0 and max inclusive. Must be run the first time with
+ * a seed, then without a seed.
  *
  * In this home-made random, we use the following recursive sequence to generate
  * random values:
@@ -38,7 +39,7 @@ custom_random (unsigned long max)
  *
  * We need to match the following properties to have a decent RNG.
  *
- *  - Offset and max must be comprime
+ *  - Offset and max must be coprime
  *  - If 4 divides max , then factor % 4 == 1
  *  - For all p dividing max, factor % p == 1
  *
@@ -48,17 +49,19 @@ custom_random (unsigned long max)
  *  - factor must be close to the square root of max.
  */
 unsigned long 
-randomgen (unsigned long max, unsigned long seed)
+custom_randomgen (unsigned long max, unsigned long seed)
 {
-    unsigned long i;
-    static unsigned long random_number = RANDOMGEN_INIT;
+    static unsigned long random_number = 0;
+    if (seed != 0)
+    {
+        random_number = seed;
+        return random_number;
+    }
+
     unsigned long factor = RANDOMGEN_FACTOR, offset = RANDOMGEN_OFFSET;
 
-    for (i = 0; i < seed; i++)
-        random_number = (factor * random_number + offset) % max;
-
-    random_number %= max;
-    return random_number % max;
+    random_number = (factor * random_number + offset) % max;
+    return random_number;
 }
 
 /* Grayscale bitmap. */

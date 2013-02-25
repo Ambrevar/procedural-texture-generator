@@ -20,7 +20,7 @@ typedef struct layer
 struct layer *init_layer (long);
 void free_layer (struct layer *);
 
-layer *generate_random_layer (struct layer *c);
+layer *generate_random_layer (struct layer *c, unsigned long seed);
 
 void generate_work_layer (long frequency,
                           long octaves,

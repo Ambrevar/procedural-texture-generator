@@ -56,22 +56,26 @@ free_layer (struct layer *s)
 // TODO: use constant seed?
 /* Gray scale */
 layer *
-generate_random_layer (struct layer *c)
+generate_random_layer (struct layer *c, unsigned long seed)
 {
-    int size = c->size;
-    int i, j;
+    long size = c->size;
+    long i, j;
 
     layer *random_layer;
     random_layer = init_layer (size);
     if (!random_layer)
+    {
+        trace("Could not init random layer.");
         return c;
-
+    }
+    
+    /* Init seeds for both std and home-made RNG. */
+    srand (seed);
+    custom_randomgen (0, seed);
     for (i = 0; i < size; i++)
         for (j = 0; j < size; j++)
-        {
-            random_layer->v[i][j] = custom_random (255);
-            /* random_layer->v[i][j] = randomgen(seed, 255); */
-        }
+            /* random_layer->v[i][j] = custom_randomgen (255, 0); */
+            random_layer->v[i][j] = randomgen (255);
 
     return random_layer;
 }
