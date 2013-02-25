@@ -5,6 +5,8 @@
 
 #include "config.h"
 
+// TODO: check all types (long, double, Uint8, etc.).
+
 /* TODO: replace persistence double with a Uint8/Uint8 fraction. */
 /* TODO: Could seed be one one byte only? */
 /**
@@ -114,7 +116,7 @@ custom_randomgen (unsigned long max, unsigned long seed)
 
 /* SDL function to color a specific pixel on "screen". */
 void
-color_pixel (SDL_Surface * screen, int x, int y, Uint8 red, Uint8 green,
+color_pixel (SDL_Surface * screen, long x, long y, Uint8 red, Uint8 green,
              Uint8 blue)
 {
     Uint32 map = SDL_MapRGB (screen->format, red, green, blue);
@@ -302,34 +304,32 @@ interpol_val (long i, long j, long frequency, layer * current_layer)
     return result;
 }
 
-layer *
-init_layer (long size)
+int
+init_layer (layer* current_layer, long size)
 {
-    layer *current_layer = malloc (sizeof (layer));
-
     if (!current_layer)
     {
-        trace ("Allocation error.");
-        return NULL;
+        trace ("Wrong layer, could not initialize.");
+        return EXIT_FAILURE;
     }
 
-    current_layer->v = malloc (size * sizeof (long *));
+    current_layer->v = malloc (size * sizeof (Uint8*));
 
     if (!current_layer->v)
     {
         trace ("Allocation error.");
-        return NULL;
+        return EXIT_FAILURE;
     }
 
     // TODO: do only one size*size malloc here.
     long i, j;
     for (i = 0; i < size; i++)
     {
-        current_layer->v[i] = malloc (size * sizeof (long));
+        current_layer->v[i] = malloc (size * sizeof (Uint8));
         if (!current_layer->v[i])
         {
             trace ("Allocation error.");
-            return NULL;
+            return EXIT_FAILURE;
         }
         for (j = 0; j < size; j++)
             current_layer->v[i][j] = 0;
@@ -337,13 +337,13 @@ init_layer (long size)
 
     current_layer->size = size;
 
-    return current_layer;
+    return EXIT_SUCCESS;
 }
 
 void
 free_layer (struct layer *s)
 {
-    int j;
+    long j;
     for (j = 0; j < s->size; j++)
         free (s->v[j]);
     free (s->v);
@@ -351,13 +351,12 @@ free_layer (struct layer *s)
 
 /* Gray scale */
 layer *
-generate_random_layer (struct layer *c, unsigned long seed)
+generate_random_layer (layer* random_layer, layer *c, unsigned long seed)
 {
     long size = c->size;
     long i, j;
 
-    layer *random_layer;
-    random_layer = init_layer (size);
+    init_layer (random_layer, size);
     if (!random_layer)
     {
         trace ("Could not init random layer.");
@@ -375,8 +374,6 @@ generate_random_layer (struct layer *c, unsigned long seed)
     return random_layer;
 }
 
-// TODO: remove all int.
-// TODO: check mem_leaks
 void
 generate_work_layer (long frequency,
                      long octaves,
@@ -387,18 +384,17 @@ generate_work_layer (long frequency,
     long i, j, n, current_frequency = frequency;
     double sum_persistences = 0;
 
-    layer **work_layers = malloc (octaves * sizeof (struct layer *));
+    layer *work_layers = malloc (octaves * sizeof (struct layer));
     double *work_persistence = malloc (octaves * sizeof (double));
     for (n = 0; n < octaves; n++)
     {
-        work_layers[n] = init_layer (size);
-        if (!work_layers[n])
-            return;
+        // TODO: check return value.
+        init_layer (&(work_layers[n]), size);
 
         for (i = 0; i < size; i++)
         {
             for (j = 0; j < size; j++)
-                work_layers[n]->v[i][j] =
+                work_layers[n].v[i][j] =
                     interpol_val (i, j, current_frequency, random_layer);
         }
 
@@ -418,7 +414,7 @@ generate_work_layer (long frequency,
             for (n = 0; n < octaves; n++)
             {
                 current_layer->v[i][j] +=
-                    work_layers[n]->v[i][j] * work_persistence[n];
+                    work_layers[n].v[i][j] * work_persistence[n];
             }
             /* Normalizing. */
             current_layer->v[i][j] =
@@ -427,9 +423,9 @@ generate_work_layer (long frequency,
     }
 
     /* Clean. */
-    free_layer (random_layer);
+    free (work_persistence);
     for (n = 0; n < octaves; n++)
-        free_layer (work_layers[n]);
+        free_layer (&(work_layers[n]));
     free (work_layers);
 }
 
@@ -442,7 +438,7 @@ generate_work_layer (long frequency,
  * close to a border and k,l is no longer a square.
  */
 layer *
-smooth_layer (long factor, layer * current_layer)
+smooth_layer (layer* smoothed_layer, long factor, layer * current_layer)
 {
 
     long size = current_layer->size;
@@ -451,9 +447,7 @@ smooth_layer (long factor, layer * current_layer)
     long k, l;
     double pixel_val;
 
-    layer *smoothed_layer;
-    smoothed_layer = init_layer (size);
-
+    init_layer (smoothed_layer ,size);
     if (!smoothed_layer)
     {
         trace ("Could not init smoothed layer.");
@@ -535,6 +529,7 @@ main (int argc, char **argv)
     Uint16 smoothing;
 
     char *option_ptr = file_buf;
+
 #define READ_OPT(opt,size) memcpy(&(opt), option_ptr, size); option_ptr += size;
 
     READ_OPT (seed, 4);
@@ -577,49 +572,54 @@ main (int argc, char **argv)
 
     /* The base layer will contain our final result. */
     trace ("Init.");
-    struct layer *base;
+    struct layer base;
 
     /* The base layer is empty at the beginning. It will be generated upon a */
     /* random layer. */
-    base = init_layer (width);
-    if (!base)
-    {
-        trace ("Init layer failed.");
-        return 1;
-    }
+    init_layer (&base, width);
+    // TODO: check return value.
+    /* if (!base) */
+    /* { */
+    /*     trace ("Init layer failed."); */
+    /*     return 1; */
+    /* } */
 
     /* Transform base using Perlin algorithm upon a randomly generated layer. */
     trace ("Random layer.");
-    layer *random_layer = generate_random_layer (base, seed);
-    save_bmp (random_layer, OUTPUT_RANDOM);
-    generate_work_layer (frequency, octaves, persistence, base, random_layer);
+    layer random_layer;
+    generate_random_layer (&random_layer, &base, seed);
+    save_bmp (&random_layer, OUTPUT_RANDOM);
+    generate_work_layer (frequency, octaves, persistence, &base, &random_layer);
+    free_layer(&random_layer);
 
     trace ("GS.");
-    save_bmp (base, OUTPUT_GS);
+    save_bmp (&base, OUTPUT_GS);
     trace ("RGB.");
 
-    save_bmp_rgb (base, OUTPUT_RGB, threshold_red, threshold_green,
+    save_bmp_rgb (&base, OUTPUT_RGB, threshold_red, threshold_green,
                   threshold_blue, color1, color2, color3);
 
     trace ("Alt.");
-    save_bmp_alt (base, OUTPUT_ALT, threshold_red, color1, color2);
+    save_bmp_alt (&base, OUTPUT_ALT, threshold_red, color1, color2);
 
     /* Smoothed version if option is non-zero. */
     if (smoothing != 0)
     {
-        layer *layer_smoothed = smooth_layer (smoothing, base);
+        layer layer_smoothed;
+        smooth_layer (&layer_smoothed, smoothing, &base);
 
-        save_bmp (layer_smoothed, OUTPUT_GS_SMOOTH);
-        save_bmp_rgb (layer_smoothed, OUTPUT_RGB_SMOOTH, threshold_red,
+        save_bmp (&layer_smoothed, OUTPUT_GS_SMOOTH);
+        save_bmp_rgb (&layer_smoothed, OUTPUT_RGB_SMOOTH, threshold_red,
                       threshold_green, threshold_blue, color1, color2,
                       color3);
-        save_bmp_alt (layer_smoothed, OUTPUT_ALT_SMOOTH, threshold_red,
+        save_bmp_alt (&layer_smoothed, OUTPUT_ALT_SMOOTH, threshold_red,
                       color1, color2);
 
-        free_layer (layer_smoothed);
+        free_layer (&layer_smoothed);
     }
 
 
+    free_layer (&base);
     free (file_buf);
     return EXIT_SUCCESS;
 }
