@@ -4,7 +4,7 @@
 
 APPNAME = "procedural-textures"
 BIN = procedural-textures
-VERSION = 0.1
+VERSION = 1.0
 AUTHOR = "Pierre Neidhardt"
 # MAIL <ambrevar [at] gmail [dot] com>"
 YEAR = "2013"
