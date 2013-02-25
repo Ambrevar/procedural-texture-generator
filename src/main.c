@@ -331,11 +331,29 @@ save_bmp_alt (layer * current_layer,
     return EXIT_SUCCESS;
 }
 
-/* Using splines. We use long arguments as y1 and y2 on purpose, so that it can
- * be used in any context. */
-/* TODO: what are the two spline conditions? */
+/**
+ * Using cubic splines. We use a cubic polinom p(x) = a + b*x + c*x^2 + d*x^3 so
+ * that
+ *
+ *   p(0) = y1
+ *   p(1) = y2
+ *   p'(0) = 0
+ *   p'(1) = 0
+ *
+ * We want the border to be smooth, hence the flat tangent. The uniq resulting
+ * polynom is
+ *
+ *   p(x) = y1 [ 3 * (1-x)^2 - 2 (1-x)^3 ] + y2 [ 3*x^2 -2*x^3 ]
+ *
+ * Here x is delta / step. delta is the distance to y1, step is the distance
+ * between y1 and y2. We normalize everything to [0,1] to get the previous
+ * property.
+ *
+ * We use 'long' type for y1 and y2 arguments on purpose, so that it can be used
+ * in any context. (This is debatable.)
+ */
 long
-interpol (long y1, long y2, long step, long delta)
+interpol (long y1, long y2, tsize_t step, tsize_t delta)
 {
     /* step == 0 should never happen. */
     if (step == 0)
