@@ -9,12 +9,11 @@
 #include <errno.h>
 #include <inttypes.h>
 
-#define LINE_SEED 1
-#define LINE_OCTAVES 2
-#define LINE_FREQUENCY 3
-#define LINE_PERSISTENCE 4
-#define LINE_WIDTH 5
-#define LINE_SMOOTHING 18
+#define LINE_WIDTH 1
+#define LINE_HEIGHT 2
+#define LINE_SEED 3
+#define LINE_OCTAVES 4
+#define LINE_FREQUENCY 5
 
 void
 trace (const char *s)
@@ -89,22 +88,8 @@ main (int argc, char **argv)
 
             switch (line)
             {
-
-                case LINE_PERSISTENCE:
-                    {
-                        double buf = strtod (subtoken, NULL);
-                        if (errno == ERANGE)
-                        {
-                            perror ("Could not convert string to double.");
-                            continue;
-                        }
-                        printf ("[%s|%f]\n", subtoken, buf);
-                        fwrite (&buf, sizeof (double), 1, outfile);
-                        break;
-                    }
-
-                case LINE_SEED:
                 case LINE_WIDTH:
+                case LINE_HEIGHT:
                     {
                         uint32_t buf = strtol (subtoken, NULL, 0);
                         if (errno == ERANGE)
@@ -117,9 +102,9 @@ main (int argc, char **argv)
                         break;
                     }
 
+                case LINE_SEED:
                 case LINE_OCTAVES:
                 case LINE_FREQUENCY:
-                case LINE_SMOOTHING:
                     {
                         uint16_t buf = strtol (subtoken, NULL, 0);
                         if (errno == ERANGE)

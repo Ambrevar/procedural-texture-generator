@@ -10,37 +10,9 @@
 
 #include "config.h"
 
-/* TODO: replace persistence double with a Uint8/Uint8 fraction. */
-/* TODO: Could seed be one one byte only? */
-/**
- * Texture file spec:
- *
- * Uint8 seed;
- * Uint16 octaves;
- * Uint16 frequency;
- * Uint8 persistence_num;
- * Uint8 persistence_denom;
- * tsize_t width;
- * tsize_t height;
- * Uint8  threshold_red;
- * Uint8  threshold_green;
- * Uint8  threshold_blue;
- * Uint8  color1.red;
- * Uint8  color1.green;
- * Uint8  color1.blue;
- * Uint8  color2.red;
- * Uint8  color2.green;
- * Uint8  color2.blue;
- * Uint8  color3.red;
- * Uint8  color3.green;
- * Uint8  color3.blue;
- * Uint8 smoothing;
- */
-
-#define TEXTURE_FILE_SIZE 34
-
-/* Type for texture pixel size. */
+/* Type for pixel lengths, like texture resolution. */
 typedef Uint32 tsize_t;
+typedef Uint64 tarea_t;
 
 typedef struct color
 {
@@ -49,22 +21,31 @@ typedef struct color
     Uint8 blue;
 } color;
 
+/* This is the sume of all parameter sizes. */
+#define TEXTURE_FILE_SIZE 29
+/* #define TEXTURE_FILE_SIZE 34 */
+
+/* TODO: size of the seed? */
 /* Texture parameters. */
 typedef struct texture_parameter {
-    Uint32 seed;
+    tsize_t width;
+    tsize_t height;
+    Uint16 seed;
+    /* Uint32 seed; */
     Uint16 octaves;
     Uint16 frequency;
-    double persistence;
-    tsize_t width;
+    /* double persistence; */
+    Uint8 persistence_num;
+    Uint8 persistence_den;
     Uint8 threshold_red;
     Uint8 threshold_green;
     Uint8 threshold_blue;
     color color1;
     color color2;
     color color3;
-    Uint16 smoothing;
+    Uint8 smoothing;
+    /* Uint16 smoothing; */
 } texture_parameter;
-
 
 typedef struct layer
 {
@@ -72,7 +53,7 @@ typedef struct layer
     tsize_t size;
 } layer;
 
-
+/* Quick strings. Having length is time saving. */
 typedef struct qstring
 {
     char* val;
@@ -169,8 +150,7 @@ init_layer (layer * current_layer, tsize_t size)
         return EXIT_FAILURE;
     }
 
-    /* WARNING: there is no overflow check here! */
-    tsize_t memsize = size * size;
+    tarea_t memsize = (tarea_t)size * (tarea_t)size;
     current_layer->v = malloc (memsize * sizeof (Uint8));
 
     if (!current_layer->v)
@@ -194,7 +174,7 @@ free_layer (struct layer *l)
 Uint8 *
 at_layer (struct layer *l, tsize_t i, tsize_t j)
 {
-    return &(l->v[i * l->size + j]);
+    return &(l->v[(tarea_t)i * (tarea_t)l->size + (tarea_t)j]);
 }
 
 
@@ -434,8 +414,10 @@ generate_random_layer (layer * random_layer, layer * c, Uint32 seed)
     /* custom_randomgen (0, seed); */
     for (i = 0; i < size; i++)
         for (j = 0; j < size; j++)
+        {
             /* random_layer->v[i][j] = custom_randomgen (255, 0); */
             random_layer->v[i * random_layer->size + j] = randomgen (255);
+        }
 
     return EXIT_SUCCESS;
 }
@@ -560,12 +542,16 @@ texture_details(texture_parameter *tparam)
     puts("{");
 #define TEXTURE_PRINT(opt,fmt)  fprintf (stderr, "  " #opt ": %" fmt  "\n", opt);
 
-    TEXTURE_PRINT(tparam->seed, PRIu32);
+    // TODO: use nested macros to print using PRIu ## type_size.
+    TEXTURE_PRINT(tparam->width, PRIu32);
+    TEXTURE_PRINT(tparam->height, PRIu32);
+
+    TEXTURE_PRINT(tparam->seed, PRIu16);
     TEXTURE_PRINT(tparam->octaves, PRIu16);
     TEXTURE_PRINT(tparam->frequency, PRIu16);
+    TEXTURE_PRINT(tparam->persistence_num, PRIu8);
+    TEXTURE_PRINT(tparam->persistence_den, PRIu8);
 
-    TEXTURE_PRINT(tparam->persistence, "f");
-    TEXTURE_PRINT(tparam->width, PRIu32);
     TEXTURE_PRINT(tparam->threshold_red, PRIu8);
     TEXTURE_PRINT(tparam->threshold_green, PRIu8);
     TEXTURE_PRINT(tparam->threshold_blue, PRIu8);
@@ -578,6 +564,7 @@ texture_details(texture_parameter *tparam)
     TEXTURE_PRINT(tparam->color3.red, PRIu8);
     TEXTURE_PRINT(tparam->color3.green, PRIu8);
     TEXTURE_PRINT(tparam->color3.blue, PRIu8);
+
     TEXTURE_PRINT(tparam->smoothing, PRIu8);
 
     puts("}");
@@ -603,11 +590,13 @@ read_opt (qstring *s, texture_parameter *tparam)
     remmem -= sizeof(opt) ; \
     buf += sizeof(opt);
 
+    READ_OPT (tparam->width);
+    READ_OPT (tparam->height);
     READ_OPT (tparam->seed);
     READ_OPT (tparam->octaves);
     READ_OPT (tparam->frequency);
-    READ_OPT (tparam->persistence);
-    READ_OPT (tparam->width);
+    READ_OPT (tparam->persistence_num);
+    READ_OPT (tparam->persistence_den);
     READ_OPT (tparam->threshold_red);
     READ_OPT (tparam->threshold_green);
     READ_OPT (tparam->threshold_blue);
@@ -690,6 +679,7 @@ main (int argc, char **argv)
     }
 
     /* Transform base using Perlin algorithm upon a randomly generated layer. */
+    trace ("Random layer.");
     layer random_layer;
     if (generate_random_layer (&random_layer, &base, tparam.seed) == EXIT_FAILURE)
     {
@@ -697,10 +687,19 @@ main (int argc, char **argv)
         return EXIT_FAILURE;
     }
     save_bmp (&random_layer, OUTPUT_RANDOM);
+
+    trace ("Work layer.");
+    if (tparam.persistence_den == 0)
+    {
+        free_layer (&random_layer);
+        trace("Persistence denominator cannot be zero.");
+        return EXIT_FAILURE;
+    }
     if (generate_work_layer
-        (tparam.frequency, tparam.octaves, tparam.persistence, &base,
+        (tparam.frequency, tparam.octaves, (double) tparam.persistence_num / tparam.persistence_den, &base,
          &random_layer) == EXIT_FAILURE)
     {
+        free_layer (&random_layer);
         trace ("Work layer failed.");
         return EXIT_FAILURE;
     }
