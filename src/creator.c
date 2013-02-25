@@ -1,3 +1,7 @@
+/**
+ * Copyright © 2013 Pierre Neidhardt
+ * See LICENSE file for copyright and license details.
+ */
 #include <stdlib.h>
 #include <SDL/SDL.h>
 #include <stdio.h>

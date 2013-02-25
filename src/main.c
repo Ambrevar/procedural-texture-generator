@@ -1,3 +1,7 @@
+/**
+ * Copyright © 2013 Pierre Neidhardt
+ * See LICENSE file for copyright and license details.
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <SDL/SDL.h>
@@ -160,7 +164,6 @@ color_pixel (SDL_Surface * screen, long x, long y, Uint8 red, Uint8 green,
     *((Uint32 *) (screen->pixels) + x + y * screen->w) = map;
 }
 
-// TODO: error check.
 /* Grayscale bitmap. */
 int
 save_bmp (struct layer *current_layer, const char *filename)
@@ -282,7 +285,7 @@ save_bmp_alt (layer * current_layer,
             Uint8 red, green, blue;
             double f;
 
-            /* TODO: test against "threshold", not "thresholt / 2". */
+            /* TODO: test against "threshold", not "threshold / 2". */
             double value = fmod (*at_layer(current_layer, i,j), threshold);
             if (value > threshold / 2)
                 value = threshold - value;
@@ -363,7 +366,7 @@ interpol_val (long i, long j, long frequency, layer * current_layer)
     return result;
 }
 
-layer *
+int
 generate_random_layer (layer* random_layer, layer *c, unsigned long seed)
 {
     /* Values are only on 0..255, so it's gray scale. We add colors only when we
@@ -371,11 +374,10 @@ generate_random_layer (layer* random_layer, layer *c, unsigned long seed)
     long size = c->size;
     long i, j;
 
-    init_layer (random_layer, size);
-    if (!random_layer)
+    if (init_layer (random_layer, size) == EXIT_FAILURE)
     {
         trace ("Could not init random layer.");
-        return c;
+        return EXIT_FAILURE;
     }
 
     /* Init seeds for both std and home-made RNG. We do not use the home-made
@@ -387,10 +389,10 @@ generate_random_layer (layer* random_layer, layer *c, unsigned long seed)
             /* random_layer->v[i][j] = custom_randomgen (255, 0); */
             random_layer->v[i*random_layer->size+j] = randomgen (255);
 
-    return random_layer;
+    return EXIT_SUCCESS;
 }
 
-void
+int
 generate_work_layer (long frequency,
                      long octaves,
                      double persistence,
@@ -404,8 +406,8 @@ generate_work_layer (long frequency,
     double *work_persistence = malloc (octaves * sizeof (double));
     for (n = 0; n < octaves; n++)
     {
-        // TODO: check return value.
-        init_layer (&(work_layers[n]), size);
+        if(init_layer (&(work_layers[n]), size) == EXIT_FAILURE)
+            return EXIT_FAILURE;
 
         for (i = 0; i < size; i++)
         {
@@ -443,6 +445,8 @@ generate_work_layer (long frequency,
     for (n = 0; n < octaves; n++)
         free_layer (&(work_layers[n]));
     free (work_layers);
+
+    return EXIT_SUCCESS;
 }
 
 /**
@@ -452,7 +456,7 @@ generate_work_layer (long frequency,
  * number of pixels in the square. We need to compute it every time when we are
  * close to a border and k,l is no longer a square.
  */
-layer *
+int
 smooth_layer (layer* smoothed_layer, long factor, layer * current_layer)
 {
     long size = current_layer->size;
@@ -461,14 +465,14 @@ smooth_layer (layer* smoothed_layer, long factor, layer * current_layer)
     long k, l;
     double pixel_val;
 
-    init_layer (smoothed_layer ,size);
-    if (!smoothed_layer)
+    if( init_layer (smoothed_layer ,size) == EXIT_FAILURE)
     {
         trace ("Could not init smoothed layer.");
-        return current_layer;
+        return EXIT_FAILURE;
     }
 
     for (x = 0; x < size; x++)
+    {
         for (y = 0; y < size; y++)
         {
             pixel_val = 0;
@@ -484,8 +488,9 @@ smooth_layer (layer* smoothed_layer, long factor, layer * current_layer)
             }
             *at_layer(smoothed_layer, x,y) = (double) pixel_val / damping;
         }
+    }
 
-    return smoothed_layer;
+    return EXIT_SUCCESS;
 }
 
 /******************************************************************************/
@@ -588,22 +593,22 @@ main (int argc, char **argv)
     trace ("Init.");
     struct layer base;
 
-    /* The base layer is empty at the beginning. It will be generated upon a */
-    /* random layer. */
-    init_layer (&base, width);
-    // TODO: check return value.
-    /* if (!base) */
-    /* { */
-    /*     trace ("Init layer failed."); */
-    /*     return 1; */
-    /* } */
+    /* The base layer is empty at the beginning. It will be generated upon a
+     * random layer. */
+    if( init_layer (&base, width) == EXIT_FAILURE )
+    {
+        trace ("Init layer failed.");
+        return EXIT_FAILURE;
+    }
 
     /* Transform base using Perlin algorithm upon a randomly generated layer. */
     trace ("Random layer.");
     layer random_layer;
-    generate_random_layer (&random_layer, &base, seed);
+    if (generate_random_layer (&random_layer, &base, seed) == EXIT_FAILURE)
+        return EXIT_FAILURE;
     save_bmp (&random_layer, OUTPUT_RANDOM);
-    generate_work_layer (frequency, octaves, persistence, &base, &random_layer);
+    if(generate_work_layer (frequency, octaves, persistence, &base, &random_layer) == EXIT_FAILURE)
+        return EXIT_FAILURE;
     free_layer(&random_layer);
 
     trace ("GS.");
@@ -620,7 +625,8 @@ main (int argc, char **argv)
     if (smoothing != 0)
     {
         layer layer_smoothed;
-        smooth_layer (&layer_smoothed, smoothing, &base);
+        if (smooth_layer (&layer_smoothed, smoothing, &base) == EXIT_FAILURE)
+            return EXIT_FAILURE;
 
         save_bmp (&layer_smoothed, OUTPUT_GS_SMOOTH);
         save_bmp_rgb (&layer_smoothed, OUTPUT_RGB_SMOOTH, threshold_red,

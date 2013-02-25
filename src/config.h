@@ -1,9 +1,7 @@
-/*******************************************************************************
- * @file config.h
- * @date 
- * @brief 
- *
- ******************************************************************************/
+/**
+ * Copyright © 2013 Pierre Neidhardt
+ * See LICENSE file for copyright and license details.
+ */
 
 #ifndef CONFIG_H
 #    define CONFIG_H 1
