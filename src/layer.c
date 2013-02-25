@@ -7,7 +7,7 @@
 #include <stdlib.h>
 
 layer *
-init_layer (long size, double persistance)
+init_layer (long size, double persistence)
 {
     layer *current_layer = malloc (sizeof (layer));
 
@@ -40,7 +40,7 @@ init_layer (long size, double persistance)
     }
 
     current_layer->size = size;
-    current_layer->persistance = persistance;
+    current_layer->persistence = persistence;
 
     return current_layer;
 }
@@ -79,26 +79,26 @@ generate_random_layer (struct layer *c)
 
 // TODO: remove all int.
 // TODO: check mem_leaks
-// TODO: remove persistance in args and get it from current.
+// TODO: remove persistence in args and get it from current.
 void
 generate_work_layer (long frequency,
                      int octaves,
-                     double persistance,
+                     double persistence,
                      layer * current_layer, layer * random_layer)
 {
     long size = current_layer->size;
     long i, j, n, f_courante;
-    double sum_persistances;
-    double persistance_courante = persistance;
+    double sum_persistences;
+    double persistence_courante = persistence;
 
     // layers de travail
     layer **mes_layers = malloc (octaves * sizeof (struct layer *));
     for (i = 0; i < octaves; i++)
     {
-        mes_layers[i] = init_layer (size, persistance_courante);
+        mes_layers[i] = init_layer (size, persistence_courante);
         if (!mes_layers[i])
             return;
-        persistance_courante *= persistance;
+        persistence_courante *= persistence;
     }
 
     f_courante = frequency;
@@ -115,9 +115,9 @@ generate_work_layer (long frequency,
         f_courante *= frequency;
     }
 
-    sum_persistances = 0;
+    sum_persistences = 0;
     for (i = 0; i < octaves; i++)
-        sum_persistances += mes_layers[i]->persistance;
+        sum_persistences += mes_layers[i]->persistence;
 
     // ajout des layers successifs
     for (i = 0; i < size; i++)
@@ -127,11 +127,11 @@ generate_work_layer (long frequency,
             for (n = 0; n < octaves; n++)
             {
                 current_layer->v[i][j] +=
-                    mes_layers[n]->v[i][j] * mes_layers[n]->persistance;
+                    mes_layers[n]->v[i][j] * mes_layers[n]->persistence;
             }
             // normalisation
             current_layer->v[i][j] =
-                current_layer->v[i][j] / sum_persistances;
+                current_layer->v[i][j] / sum_persistences;
         }
     }
 
