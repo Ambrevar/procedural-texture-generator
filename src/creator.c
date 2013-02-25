@@ -59,11 +59,12 @@ main (int argc, char **argv)
     if (file_buf == NULL)
     {
         perror (argv[1]);
+        fclose (file);
         return EXIT_FAILURE;
     }
 
     fread (file_buf, 1, file_size, file);
-    file_buf[file_size + 1] = '\0';
+    file_buf[file_size] = '\0';
     fclose (file);
 
     FILE *outfile = fopen (argv[2], "wb");
@@ -71,6 +72,7 @@ main (int argc, char **argv)
     {
         trace ("Could not open file:");
         trace (argv[1]);
+        free (file_buf);
         return EXIT_FAILURE;
     }
 

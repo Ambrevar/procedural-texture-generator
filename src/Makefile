@@ -27,7 +27,7 @@ LDFLAGS_ALL += -lSDL
 LDFLAGS_ALL += -lm
 
 SRC += main.c
-OBJ = ${SRC:.c=.o}
+# OBJ = ${SRC:.c=.o}
 
 ##==============================================================================
 ## Rules
@@ -44,7 +44,7 @@ options:
 creator: creator.c
 	@${CC} ${CFLAGS_ALL} $^ -o $@
 
-${BIN}: ${OBJ}
+${BIN}: ${SRC}
 	@${CC} ${LDFLAGS_ALL} $^ -o $@
 
 %.o: %.c
