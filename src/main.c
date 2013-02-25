@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <SDL/SDL.h>
 #include <math.h>
+#include <strings.h>
 
 #include "config.h"
 
@@ -10,7 +11,7 @@
 /* TODO: replace persistence double with a Uint8/Uint8 fraction. */
 /* TODO: Could seed be one one byte only? */
 /**
- * File spec:
+ * Texture file spec:
  *
  * Uint32 seed;
  * Uint16 octaves;
@@ -46,7 +47,7 @@ typedef struct color
 
 typedef struct layer
 {
-    Uint8 **v;
+    Uint8 *v;
     long size;
 } layer;
 
@@ -113,6 +114,42 @@ custom_randomgen (unsigned long max, unsigned long seed)
     return random_number;
 }
 
+int
+init_layer (layer* current_layer, long size)
+{
+    if (!current_layer)
+    {
+        trace ("Wrong layer, could not initialize.");
+        return EXIT_FAILURE;
+    }
+
+    long memsize = size * size;
+    current_layer->v = malloc (memsize * sizeof (Uint8));
+
+    if (!current_layer->v)
+    {
+        trace ("Allocation error.");
+        return EXIT_FAILURE;
+    }
+
+    memset(current_layer->v, 0, memsize);
+    current_layer->size = size;
+
+    return EXIT_SUCCESS;
+}
+
+void
+free_layer (struct layer *l)
+{
+    free (l->v);
+}
+
+Uint8*
+at_layer (struct layer *l, long i, long j)
+{
+    return &(l->v[i*l->size + j]);
+}
+
 
 /* SDL function to color a specific pixel on "screen". */
 void
@@ -138,8 +175,8 @@ save_bmp (struct layer *current_layer, const char *filename)
     long i, j;
     for (i = 0; i < current_layer->size; i++)
         for (j = 0; j < current_layer->size; j++)
-            color_pixel (screen, i, j, current_layer->v[i][j],
-                         current_layer->v[i][j], current_layer->v[i][j]);
+            color_pixel (screen, i, j, *at_layer(current_layer, i,j),
+                         *at_layer(current_layer, i,j), *at_layer(current_layer, i,j));
 
     SDL_SaveBMP (screen, filename);
     SDL_FreeSurface (screen);
@@ -165,24 +202,24 @@ save_bmp_rgb (layer * current_layer, const char *filename,
             Uint8 red, green, blue;
             double f;
 
-            if (current_layer->v[i][j] < threshold_red)
+            if (*at_layer(current_layer, i,j) < threshold_red)
             {
                 red = color1.red;
                 green = color1.green;
                 blue = color1.blue;
             }
-            else if (current_layer->v[i][j] < threshold_green)
+            else if (*at_layer(current_layer, i,j) < threshold_green)
             {
-                f = (double) (current_layer->v[i][j] -
+                f = (double) (*at_layer(current_layer, i,j) -
                               threshold_red) / (threshold_green -
                                                 threshold_red);
                 red = (Uint8) (color1.red * (1 - f) + color2.red * (f));
                 green = (Uint8) (color1.green * (1 - f) + color2.green * (f));
                 blue = (Uint8) (color1.blue * (1 - f) + color2.blue * (f));
             }
-            else if (current_layer->v[i][j] < threshold_blue)
+            else if (*at_layer(current_layer, i,j) < threshold_blue)
             {
-                f = (double) (current_layer->v[i][j] -
+                f = (double) (*at_layer(current_layer, i,j) -
                               threshold_green) / (threshold_blue -
                                                   threshold_green);
                 red = (Uint8) (color2.red * (1 - f) + color3.red * (f));
@@ -191,7 +228,7 @@ save_bmp_rgb (layer * current_layer, const char *filename,
             }
             else
             {
-                f = (double) (current_layer->v[i][j] -
+                f = (double) (*at_layer(current_layer, i,j) -
                               threshold_blue) / (255 - threshold_blue);
                 red = color3.red;
                 green = color3.green;
@@ -226,7 +263,7 @@ save_bmp_alt (layer * current_layer,
             Uint8 red, green, blue;
             double f;
 
-            double value = fmod (current_layer->v[i][j], threshold);
+            double value = fmod (*at_layer(current_layer, i,j), threshold);
             if (value > threshold / 2)
                 value = threshold - value;
 
@@ -277,7 +314,7 @@ interpol_val (long i, long j, long frequency, layer * current_layer)
 
     long step = current_layer->size / frequency;
     if (step == 0)
-        return current_layer->v[i][j];
+        return *at_layer(current_layer, i,j);
 
     bound1i = i / step * step;
     bound2i = bound1i + step;
@@ -292,61 +329,16 @@ interpol_val (long i, long j, long frequency, layer * current_layer)
         bound2j = current_layer->size - 1;
 
     long b11, b12, b21, b22;
-    b11 = current_layer->v[bound1i][bound1j];
-    b12 = current_layer->v[bound1i][bound2j];
-    b21 = current_layer->v[bound2i][bound1j];
-    b22 = current_layer->v[bound2i][bound2j];
+    b11 = *at_layer(current_layer,bound1i,bound1j);
+    b12 = *at_layer(current_layer,bound1i,bound2j);
+    b21 = *at_layer(current_layer,bound2i,bound1j);
+    b22 = *at_layer(current_layer,bound2i,bound2j);
 
     long v1 = interpol (b11, b12, step, j - bound1j);
     long v2 = interpol (b21, b22, step, j - bound1j);
     long result = interpol (v1, v2, step, i - bound1i);
 
     return result;
-}
-
-int
-init_layer (layer* current_layer, long size)
-{
-    if (!current_layer)
-    {
-        trace ("Wrong layer, could not initialize.");
-        return EXIT_FAILURE;
-    }
-
-    current_layer->v = malloc (size * sizeof (Uint8*));
-
-    if (!current_layer->v)
-    {
-        trace ("Allocation error.");
-        return EXIT_FAILURE;
-    }
-
-    // TODO: do only one size*size malloc here.
-    long i, j;
-    for (i = 0; i < size; i++)
-    {
-        current_layer->v[i] = malloc (size * sizeof (Uint8));
-        if (!current_layer->v[i])
-        {
-            trace ("Allocation error.");
-            return EXIT_FAILURE;
-        }
-        for (j = 0; j < size; j++)
-            current_layer->v[i][j] = 0;
-    }
-
-    current_layer->size = size;
-
-    return EXIT_SUCCESS;
-}
-
-void
-free_layer (struct layer *s)
-{
-    long j;
-    for (j = 0; j < s->size; j++)
-        free (s->v[j]);
-    free (s->v);
 }
 
 /* Gray scale */
@@ -369,7 +361,7 @@ generate_random_layer (layer* random_layer, layer *c, unsigned long seed)
     for (i = 0; i < size; i++)
         for (j = 0; j < size; j++)
             /* random_layer->v[i][j] = custom_randomgen (255, 0); */
-            random_layer->v[i][j] = randomgen (255);
+            random_layer->v[i*random_layer->size+j] = randomgen (255);
 
     return random_layer;
 }
@@ -394,7 +386,7 @@ generate_work_layer (long frequency,
         for (i = 0; i < size; i++)
         {
             for (j = 0; j < size; j++)
-                work_layers[n].v[i][j] =
+                *at_layer(&(work_layers[n]),i,j) =
                     interpol_val (i, j, current_frequency, random_layer);
         }
 
@@ -413,12 +405,12 @@ generate_work_layer (long frequency,
         {
             for (n = 0; n < octaves; n++)
             {
-                current_layer->v[i][j] +=
-                    work_layers[n].v[i][j] * work_persistence[n];
+                *at_layer(current_layer, i,j) +=
+                    *at_layer(&(work_layers[n]), i, j) * work_persistence[n];
             }
             /* Normalizing. */
-            current_layer->v[i][j] =
-                current_layer->v[i][j] / sum_persistences;
+            *at_layer(current_layer, i,j) =
+                *at_layer(current_layer, i,j) / sum_persistences;
         }
     }
 
@@ -465,10 +457,10 @@ smooth_layer (layer* smoothed_layer, long factor, layer * current_layer)
                     if ((k >= 0) && (k < size) && (l >= 0) && (l < size))
                     {
                         damping++;
-                        pixel_val += current_layer->v[k][l];
+                        pixel_val += *at_layer(current_layer, k, l);
                     }
             }
-            smoothed_layer->v[x][y] = (double) pixel_val / damping;
+            *at_layer(smoothed_layer, x,y) = (double) pixel_val / damping;
         }
 
     return smoothed_layer;
