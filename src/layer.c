@@ -136,37 +136,48 @@ generate_work_layer (long frequency,
 }
 
 
-// Lissage
+/**
+ * We set the x,y pixel to be the mean of all pixels in the k,l square around
+ * it. The new pixel value type needs to be higher than traditionnal pixel
+ * because we sum pixels and thus it may overflow. The damping factor is the
+ * number of pixels in the square. We need to compute it every time when we are
+ * close to a border and k,l is no longer a square.
+ */
 layer *
 smooth_layer (long factor, layer * current_layer)
 {
 
-    int size = current_layer->size;
-    int n;
-    int x, y, k, l;
-    int a;
+    long size = current_layer->size;
+    long damping;
+    long x, y; 
+    long k, l;
+    double pixel_val;
 
     layer *smoothed_layer;
     smoothed_layer = init_layer (size);
 
     if (!smoothed_layer)
     {
+        trace("Could not init smoothed layer.");
         return current_layer;
     }
 
     for (x = 0; x < size; x++)
         for (y = 0; y < size; y++)
         {
-            a = 0;
-            n = 0;
+            pixel_val = 0;
+            damping = 0;
             for (k = x - factor; k <= x + factor; k++)
+            {
                 for (l = y - factor; l <= y + factor; l++)
                     if ((k >= 0) && (k < size) && (l >= 0) && (l < size))
                     {
-                        n++;
-                        a += current_layer->v[k][l];
+                        damping++;
+                        pixel_val += current_layer->v[k][l];
                     }
-            smoothed_layer->v[x][y] = (double) a / n;
+            }
+            smoothed_layer->v[x][y] = (double) pixel_val / damping;
         }
+
     return smoothed_layer;
 }
