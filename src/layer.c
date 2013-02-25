@@ -7,7 +7,7 @@
 #include <stdlib.h>
 
 layer *
-init_layer (long size, double persistence)
+init_layer (long size)
 {
     layer *current_layer = malloc (sizeof (layer));
 
@@ -40,7 +40,6 @@ init_layer (long size, double persistence)
     }
 
     current_layer->size = size;
-    current_layer->persistence = persistence;
 
     return current_layer;
 }
@@ -63,7 +62,7 @@ generate_random_layer (struct layer *c)
     int i, j;
 
     layer *random_layer;
-    random_layer = init_layer (size, 1);
+    random_layer = init_layer (size);
     if (!random_layer)
         return c;
 
@@ -82,44 +81,38 @@ generate_random_layer (struct layer *c)
 // TODO: remove persistence in args and get it from current.
 void
 generate_work_layer (long frequency,
-                     int octaves,
+                     long octaves,
                      double persistence,
                      layer * current_layer, layer * random_layer)
 {
     long size = current_layer->size;
-    long i, j, n, f_courante;
-    double sum_persistences;
-    double persistence_courante = persistence;
+    long i, j, n, f_courante = frequency;
+    double sum_persistences = 0;
 
-    // layers de travail
-    layer **mes_layers = malloc (octaves * sizeof (struct layer *));
-    for (i = 0; i < octaves; i++)
-    {
-        mes_layers[i] = init_layer (size, persistence_courante);
-        if (!mes_layers[i])
-            return;
-        persistence_courante *= persistence;
-    }
-
-    f_courante = frequency;
-
-    // remplissage de layer
+    layer **work_layers = malloc (octaves * sizeof (struct layer *));
+    double *work_persistence = malloc (octaves * sizeof (double));
     for (n = 0; n < octaves; n++)
     {
+        work_layers[n] = init_layer (size);
+        if (!work_layers[n])
+            return;
+
         for (i = 0; i < size; i++)
         {
             for (j = 0; j < size; j++)
-                mes_layers[n]->v[i][j] = 
+                work_layers[n]->v[i][j] = 
                     interpol_val (i, j, f_courante, random_layer);
         }
+
         f_courante *= frequency;
+        if (n==0)
+            work_persistence[n] = persistence;
+        else
+            work_persistence[n] = work_persistence[n-1] * persistence;
+        sum_persistences += work_persistence[n];
     }
 
-    sum_persistences = 0;
-    for (i = 0; i < octaves; i++)
-        sum_persistences += mes_layers[i]->persistence;
-
-    // ajout des layers successifs
+    /* Sum of the consecutive layers for every pixel. */
     for (i = 0; i < size; i++)
     {
         for (j = 0; j < size; j++)
@@ -127,19 +120,19 @@ generate_work_layer (long frequency,
             for (n = 0; n < octaves; n++)
             {
                 current_layer->v[i][j] +=
-                    mes_layers[n]->v[i][j] * mes_layers[n]->persistence;
+                    work_layers[n]->v[i][j] * work_persistence[n];
             }
-            // normalisation
+            /* Normalizing. */
             current_layer->v[i][j] =
                 current_layer->v[i][j] / sum_persistences;
         }
     }
 
-    /* Clean */
+    /* Clean. */
     free_layer (random_layer);
-    for (i = 0; i < octaves; i++)
-        free_layer (mes_layers[i]);
-    free (mes_layers);
+    for (n = 0; n < octaves; n++)
+        free_layer (work_layers[n]);
+    free (work_layers);
 }
 
 
@@ -154,7 +147,7 @@ smooth_layer (long factor, layer * current_layer)
     int a;
 
     layer *smoothed_layer;
-    smoothed_layer = init_layer (size, 0);
+    smoothed_layer = init_layer (size);
 
     if (!smoothed_layer)
     {

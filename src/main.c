@@ -139,9 +139,9 @@ main (int argc, char **argv)
 
     trace("Init.");
 
-    // Initialisation du layer
-    // TODO: second arg should be persistence.
-    base = init_layer (width, 1);
+    /* The base layer is empty at the beginning. It will be generated upon a */
+    /* random layer. */
+    base = init_layer (width);
     if (!base)
     {
         trace("Init layer failed.");

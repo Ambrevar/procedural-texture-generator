@@ -17,13 +17,13 @@ typedef struct layer
     double persistence;
 } layer;
 
-struct layer *init_layer (long, double);
+struct layer *init_layer (long);
 void free_layer (struct layer *);
 
 layer *generate_random_layer (struct layer *c);
 
 void generate_work_layer (long frequency,
-                          int octaves,
+                          long octaves,
                           double persistence,
                           layer * current_layer, layer * random_layer);
 
