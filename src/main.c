@@ -485,7 +485,6 @@ smooth_layer (layer* smoothed_layer, tsize_t factor, layer * current_layer)
     long damping;
     tsize_t x, y; /* Point coordinates */
     tsize_t k, l; /* Coordinates of the points in the square around (x,y). */
-    size_t kbegin, kend, lbegin, lend; /* Ranges. */
     double pixel_val;
 
     if( init_layer (smoothed_layer ,size) == EXIT_FAILURE)
@@ -501,18 +500,11 @@ smooth_layer (layer* smoothed_layer, tsize_t factor, layer * current_layer)
             pixel_val = 0;
             damping = 0;
 
-            kbegin = x-factor;
-            kend = x+factor;
-            lbegin = y-factor;
-            lend = y+factor;
-            if (factor > x)
-                kbegin = 0;
-            if (factor >= size-x)
-                kend = size-1;
-            if (factor > y)
-                lbegin = 0;
-            if (factor >= size-y)
-                lend = size-1;
+            size_t kbegin, kend, lbegin, lend; /* Ranges. */
+            kbegin = factor > x ? 0 : x-factor;
+            lbegin = factor > y ? 0 : y-factor;
+            kend = factor >= size-x ? size-1 : x+factor;
+            lend = factor >= size-y ? size-1 : y+factor;
 
             for (k = kbegin; k<= kend; k++)
             {
