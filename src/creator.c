@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include <errno.h>
 #include <inttypes.h>
-#include "config.h"
 
 #define LINE_SEED 1
 #define LINE_OCTAVES 2

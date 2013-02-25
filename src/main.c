@@ -3,8 +3,44 @@
 #include <SDL/SDL.h>
 #include <math.h>
 
-#include "proctext.h"
 #include "config.h"
+
+/* TODO: replace persistence double with a Uint8/Uint8 fraction. */
+/* TODO: Could seed be one one byte only? */
+/**
+ * File spec:
+ *
+ * Uint32 seed;
+ * Uint16 octaves;
+ * Uint16 frequency;
+ * double persistence;
+ * Uint32 width;
+ * Uint32 height (unused);
+ * Uint8  threshold_red;
+ * Uint8  threshold_green;
+ * Uint8  threshold_blue;
+ * Uint8  color1.red;
+ * Uint8  color1.green;
+ * Uint8  color1.blue;
+ * Uint8  color2.red;
+ * Uint8  color2.green;
+ * Uint8  color2.blue;
+ * Uint8  color3.red;
+ * Uint8  color3.green;
+ * Uint8  color3.blue;
+ * Uint16 smoothing;
+ */
+
+
+#define TEXTURE_FILE_SIZE 34
+
+typedef struct color
+{
+    Uint8 red;
+    Uint8 green;
+    Uint8 blue;
+} color;
+
 
 typedef struct layer
 {
