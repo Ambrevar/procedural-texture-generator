@@ -131,7 +131,7 @@ custom_randomgen (unsigned long max, unsigned long seed)
 }
 
 int
-init_layer (layer* current_layer, tsize_t size)
+init_layer (layer * current_layer, tsize_t size)
 {
     if (!current_layer)
     {
@@ -149,7 +149,7 @@ init_layer (layer* current_layer, tsize_t size)
         return EXIT_FAILURE;
     }
 
-    memset(current_layer->v, 0, memsize);
+    memset (current_layer->v, 0, memsize);
     current_layer->size = size;
 
     return EXIT_SUCCESS;
@@ -161,17 +161,17 @@ free_layer (struct layer *l)
     free (l->v);
 }
 
-Uint8*
+Uint8 *
 at_layer (struct layer *l, tsize_t i, tsize_t j)
 {
-    return &(l->v[i*l->size + j]);
+    return &(l->v[i * l->size + j]);
 }
 
 
 /* SDL function to color a specific pixel on "screen". */
 void
-color_pixel (SDL_Surface * screen, tsize_t x, tsize_t y, tsize_t red, Uint8 green,
-             Uint8 blue)
+color_pixel (SDL_Surface * screen, tsize_t x, tsize_t y, tsize_t red,
+             Uint8 green, Uint8 blue)
 {
     Uint32 map = SDL_MapRGB (screen->format, red, green, blue);
     *((Uint32 *) (screen->pixels) + x + y * screen->w) = map;
@@ -196,8 +196,9 @@ save_bmp (struct layer *current_layer, const char *filename)
     tsize_t i, j;
     for (i = 0; i < current_layer->size; i++)
         for (j = 0; j < current_layer->size; j++)
-            color_pixel (screen, i, j, *at_layer(current_layer, i,j),
-                         *at_layer(current_layer, i,j), *at_layer(current_layer, i,j));
+            color_pixel (screen, i, j, *at_layer (current_layer, i, j),
+                         *at_layer (current_layer, i, j),
+                         *at_layer (current_layer, i, j));
 
     SDL_SaveBMP (screen, filename);
     SDL_FreeSurface (screen);
@@ -211,8 +212,8 @@ save_bmp (struct layer *current_layer, const char *filename)
  */
 int
 save_bmp_rgb (layer * current_layer, const char *filename,
-              Uint8 threshold_red, Uint8 threshold_green, Uint8 threshold_blue,
-              color color1, color color2, color color3)
+              Uint8 threshold_red, Uint8 threshold_green,
+              Uint8 threshold_blue, color color1, color color2, color color3)
 {
     SDL_Surface *screen =
         SDL_CreateRGBSurface (SDL_SWSURFACE, current_layer->size,
@@ -231,34 +232,33 @@ save_bmp_rgb (layer * current_layer, const char *filename,
             Uint8 red, green, blue;
             double f;
 
-            // TODO: remove the useless (double) and (Uint8) casts.
-            if (*at_layer(current_layer, i,j) < threshold_red)
+            if (*at_layer (current_layer, i, j) < threshold_red)
             {
                 red = color1.red;
                 green = color1.green;
                 blue = color1.blue;
             }
-            else if (*at_layer(current_layer, i,j) < threshold_green)
+            else if (*at_layer (current_layer, i, j) < threshold_green)
             {
-                f = (double) (*at_layer(current_layer, i,j) -
+                f = (double) (*at_layer (current_layer, i, j) -
                               threshold_red) / (threshold_green -
                                                 threshold_red);
-                red = (Uint8) (color1.red * (1 - f) + color2.red * (f));
-                green = (Uint8) (color1.green * (1 - f) + color2.green * (f));
-                blue = (Uint8) (color1.blue * (1 - f) + color2.blue * (f));
+                red = (color1.red * (1 - f) + color2.red * (f));
+                green = (color1.green * (1 - f) + color2.green * (f));
+                blue = (color1.blue * (1 - f) + color2.blue * (f));
             }
-            else if (*at_layer(current_layer, i,j) < threshold_blue)
+            else if (*at_layer (current_layer, i, j) < threshold_blue)
             {
-                f = (double) (*at_layer(current_layer, i,j) -
+                f = (double) (*at_layer (current_layer, i, j) -
                               threshold_green) / (threshold_blue -
                                                   threshold_green);
-                red = (Uint8) (color2.red * (1 - f) + color3.red * (f));
-                green = (Uint8) (color2.green * (1 - f) + color3.green * (f));
-                blue = (Uint8) (color2.blue * (1 - f) + color3.blue * (f));
+                red = (color2.red * (1 - f) + color3.red * (f));
+                green = (color2.green * (1 - f) + color3.green * (f));
+                blue = (color2.blue * (1 - f) + color3.blue * (f));
             }
             else
             {
-                f = (double) (*at_layer(current_layer, i,j) -
+                f = (double) (*at_layer (current_layer, i, j) -
                               threshold_blue) / (255 - threshold_blue);
                 red = color3.red;
                 green = color3.green;
@@ -301,7 +301,7 @@ save_bmp_alt (layer * current_layer,
             double f;
 
             /* TODO: test against "threshold", not "threshold / 2". */
-            double value = fmod (*at_layer(current_layer, i,j), threshold);
+            double value = fmod (*at_layer (current_layer, i, j), threshold);
             if (value > threshold / 2)
                 value = threshold - value;
 
@@ -330,7 +330,7 @@ interpol (long y1, long y2, long step, long delta)
     if (step == 1)
         return y2;
 
-    double a = (double) 1 -  (double) delta / step;
+    double a = (double) 1 - (double) delta / step;
     double b = (double) delta / step;
 
     double fac1 = 3 * (a * a) - 2 * (a * a * a);
@@ -357,7 +357,7 @@ interpol_val (tsize_t i, tsize_t j, Uint16 frequency, layer * current_layer)
 
     tsize_t step = current_layer->size / frequency;
     if (step == 0)
-        return *at_layer(current_layer, i,j);
+        return *at_layer (current_layer, i, j);
 
     bound1i = i / step * step;
     bound2i = bound1i + step;
@@ -372,10 +372,10 @@ interpol_val (tsize_t i, tsize_t j, Uint16 frequency, layer * current_layer)
         bound2j = current_layer->size - 1;
 
     Uint8 b11, b12, b21, b22;
-    b11 = *at_layer(current_layer,bound1i,bound1j);
-    b12 = *at_layer(current_layer,bound1i,bound2j);
-    b21 = *at_layer(current_layer,bound2i,bound1j);
-    b22 = *at_layer(current_layer,bound2i,bound2j);
+    b11 = *at_layer (current_layer, bound1i, bound1j);
+    b12 = *at_layer (current_layer, bound1i, bound2j);
+    b21 = *at_layer (current_layer, bound2i, bound1j);
+    b22 = *at_layer (current_layer, bound2i, bound2j);
 
     Uint8 v1 = interpol (b11, b12, step, j - bound1j);
     Uint8 v2 = interpol (b21, b22, step, j - bound1j);
@@ -385,7 +385,7 @@ interpol_val (tsize_t i, tsize_t j, Uint16 frequency, layer * current_layer)
 }
 
 int
-generate_random_layer (layer* random_layer, layer *c, Uint32 seed)
+generate_random_layer (layer * random_layer, layer * c, Uint32 seed)
 {
     /* Values are only on 0..255, so it's gray scale. We add colors only when we
      * save/render the picture. */
@@ -405,7 +405,7 @@ generate_random_layer (layer* random_layer, layer *c, Uint32 seed)
     for (i = 0; i < size; i++)
         for (j = 0; j < size; j++)
             /* random_layer->v[i][j] = custom_randomgen (255, 0); */
-            random_layer->v[i*random_layer->size+j] = randomgen (255);
+            random_layer->v[i * random_layer->size + j] = randomgen (255);
 
     return EXIT_SUCCESS;
 }
@@ -418,21 +418,21 @@ generate_work_layer (Uint16 frequency,
 {
     tsize_t size = current_layer->size;
     tsize_t i, j;
-    Uint16 n; /* Current octave. */
-    Uint16 f = frequency; /* Current frequency. Changes with octaves. */
+    Uint16 n;                   /* Current octave. */
+    Uint16 f = frequency;       /* Current frequency. Changes with octaves. */
     double sum_persistences = 0;
 
     layer *work_layers = malloc (octaves * sizeof (struct layer));
     double *work_persistence = malloc (octaves * sizeof (double));
     for (n = 0; n < octaves; n++)
     {
-        if(init_layer (&(work_layers[n]), size) == EXIT_FAILURE)
+        if (init_layer (&(work_layers[n]), size) == EXIT_FAILURE)
             return EXIT_FAILURE;
 
         for (i = 0; i < size; i++)
         {
             for (j = 0; j < size; j++)
-                *at_layer(&(work_layers[n]),i,j) =
+                *at_layer (&(work_layers[n]), i, j) =
                     interpol_val (i, j, f, random_layer);
         }
 
@@ -451,12 +451,12 @@ generate_work_layer (Uint16 frequency,
         {
             for (n = 0; n < octaves; n++)
             {
-                *at_layer(current_layer, i,j) +=
-                    *at_layer(&(work_layers[n]), i, j) * work_persistence[n];
+                *at_layer (current_layer, i, j) +=
+                    *at_layer (&(work_layers[n]), i, j) * work_persistence[n];
             }
             /* Normalizing. */
-            *at_layer(current_layer, i,j) =
-                *at_layer(current_layer, i,j) / sum_persistences;
+            *at_layer (current_layer, i, j) =
+                *at_layer (current_layer, i, j) / sum_persistences;
         }
     }
 
@@ -477,15 +477,15 @@ generate_work_layer (Uint16 frequency,
  * close to a border and k,l is no longer a square.
  */
 int
-smooth_layer (layer* smoothed_layer, tsize_t factor, layer * current_layer)
+smooth_layer (layer * smoothed_layer, tsize_t factor, layer * current_layer)
 {
     tsize_t size = current_layer->size;
     long damping;
-    tsize_t x, y; /* Point coordinates */
-    tsize_t k, l; /* Coordinates of the points in the square around (x,y). */
+    tsize_t x, y;               /* Point coordinates */
+    tsize_t k, l;               /* Coordinates of the points in the square around (x,y). */
     double pixel_val;
 
-    if( init_layer (smoothed_layer ,size) == EXIT_FAILURE)
+    if (init_layer (smoothed_layer, size) == EXIT_FAILURE)
     {
         trace ("Could not init smoothed layer.");
         return EXIT_FAILURE;
@@ -498,21 +498,21 @@ smooth_layer (layer* smoothed_layer, tsize_t factor, layer * current_layer)
             pixel_val = 0;
             damping = 0;
 
-            size_t kbegin, kend, lbegin, lend; /* Ranges. */
-            kbegin = factor > x ? 0 : x-factor;
-            lbegin = factor > y ? 0 : y-factor;
-            kend = factor >= size-x ? size-1 : x+factor;
-            lend = factor >= size-y ? size-1 : y+factor;
+            size_t kbegin, kend, lbegin, lend;  /* Ranges. */
+            kbegin = factor > x ? 0 : x - factor;
+            lbegin = factor > y ? 0 : y - factor;
+            kend = factor >= size - x ? size - 1 : x + factor;
+            lend = factor >= size - y ? size - 1 : y + factor;
 
-            for (k = kbegin; k<= kend; k++)
+            for (k = kbegin; k <= kend; k++)
             {
-                for (l = lbegin; l<= lend; l++)
+                for (l = lbegin; l <= lend; l++)
                 {
                     damping++;
-                    pixel_val += *at_layer(current_layer, k, l);
+                    pixel_val += *at_layer (current_layer, k, l);
                 }
             }
-            *at_layer(smoothed_layer, x,y) = (double) pixel_val / damping;
+            *at_layer (smoothed_layer, x, y) = (double) pixel_val / damping;
         }
     }
 
@@ -576,28 +576,28 @@ main (int argc, char **argv)
 
     char *option_ptr = file_buf;
 
-    /* This macro comes very handy to read argument one after another. WARNING:
-     * there is not special check here. */
+    /* This macro comes in very handy to read argument one after
+     * another. WARNING: there is not special check here. */
 #define READ_OPT(opt) memcpy(&(opt), option_ptr, sizeof(opt)); option_ptr += sizeof(opt);
 
-    READ_OPT (seed );
-    READ_OPT (octaves );
-    READ_OPT (frequency );
-    READ_OPT (persistence );
-    READ_OPT (width );
-    READ_OPT (threshold_red );
-    READ_OPT (threshold_green );
-    READ_OPT (threshold_blue );
-    READ_OPT (color1.red );
-    READ_OPT (color1.green );
-    READ_OPT (color1.blue );
-    READ_OPT (color2.red );
-    READ_OPT (color2.green );
-    READ_OPT (color2.blue );
-    READ_OPT (color3.red );
-    READ_OPT (color3.green );
-    READ_OPT (color3.blue );
-    READ_OPT (smoothing );
+    READ_OPT (seed);
+    READ_OPT (octaves);
+    READ_OPT (frequency);
+    READ_OPT (persistence);
+    READ_OPT (width);
+    READ_OPT (threshold_red);
+    READ_OPT (threshold_green);
+    READ_OPT (threshold_blue);
+    READ_OPT (color1.red);
+    READ_OPT (color1.green);
+    READ_OPT (color1.blue);
+    READ_OPT (color2.red);
+    READ_OPT (color2.green);
+    READ_OPT (color2.blue);
+    READ_OPT (color3.red);
+    READ_OPT (color3.green);
+    READ_OPT (color3.blue);
+    READ_OPT (smoothing);
 
     /* fprintf (stderr, "%ld\n", seed); */
     /* fprintf (stderr, "%ld\n", octaves); */
@@ -624,7 +624,7 @@ main (int argc, char **argv)
 
     /* The base layer is empty at the beginning. It will be generated upon a
      * random layer. */
-    if( init_layer (&base, width) == EXIT_FAILURE )
+    if (init_layer (&base, width) == EXIT_FAILURE)
     {
         trace ("Init layer failed.");
         return EXIT_FAILURE;
@@ -636,9 +636,11 @@ main (int argc, char **argv)
     if (generate_random_layer (&random_layer, &base, seed) == EXIT_FAILURE)
         return EXIT_FAILURE;
     save_bmp (&random_layer, OUTPUT_RANDOM);
-    if(generate_work_layer (frequency, octaves, persistence, &base, &random_layer) == EXIT_FAILURE)
+    if (generate_work_layer
+        (frequency, octaves, persistence, &base,
+         &random_layer) == EXIT_FAILURE)
         return EXIT_FAILURE;
-    free_layer(&random_layer);
+    free_layer (&random_layer);
 
     trace ("GS.");
     save_bmp (&base, OUTPUT_GS);
