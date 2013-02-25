@@ -73,7 +73,32 @@ typedef struct layer
 } layer;
 
 
+typedef struct qstring
+{
+    char* val;
+    unsigned long length;
+} qstring;
+
 /******************************************************************************/
+
+int qstring_init (qstring *s, unsigned long size)
+{
+    s->val = malloc(size);
+    if (s->val == NULL)
+    {
+        perror("qstring_init");
+        return EXIT_FAILURE;
+    }
+    s->length = size;
+
+    return EXIT_SUCCESS;
+}
+
+void qstring_free (qstring *s)
+{
+    if (s->val != NULL)
+        free(s->val);
+}
 
 void
 usage (void)
@@ -526,10 +551,50 @@ smooth_layer (layer * smoothed_layer, tsize_t factor, layer * current_layer)
 
 /******************************************************************************/
 
-int
-read_opt (const char *buf, texture_parameter *tparam)
+void
+texture_details(texture_parameter *tparam)
 {
+    if (tparam == NULL)
+        return;
+
+    puts("{");
+#define TEXTURE_PRINT(opt,fmt)  fprintf (stderr, "  " #opt ": %" fmt  "\n", opt);
+
+    TEXTURE_PRINT(tparam->seed, PRIu32);
+    TEXTURE_PRINT(tparam->octaves, PRIu16);
+    TEXTURE_PRINT(tparam->frequency, PRIu16);
+
+    TEXTURE_PRINT(tparam->persistence, "f");
+    TEXTURE_PRINT(tparam->width, PRIu32);
+    TEXTURE_PRINT(tparam->threshold_red, PRIu8);
+    TEXTURE_PRINT(tparam->threshold_green, PRIu8);
+    TEXTURE_PRINT(tparam->threshold_blue, PRIu8);
+    TEXTURE_PRINT(tparam->color1.red, PRIu8);
+    TEXTURE_PRINT(tparam->color1.green, PRIu8);
+    TEXTURE_PRINT(tparam->color1.blue, PRIu8);
+    TEXTURE_PRINT(tparam->color2.red, PRIu8);
+    TEXTURE_PRINT(tparam->color2.green, PRIu8);
+    TEXTURE_PRINT(tparam->color2.blue, PRIu8);
+    TEXTURE_PRINT(tparam->color3.red, PRIu8);
+    TEXTURE_PRINT(tparam->color3.green, PRIu8);
+    TEXTURE_PRINT(tparam->color3.blue, PRIu8);
+    TEXTURE_PRINT(tparam->smoothing, PRIu8);
+
+    puts("}");
+}
+
+/**
+ * First we make sure the file length is correct, then we make sure the sequence
+ * of READ_OPT does not go beyond the file length by testing against remmem.
+ */
+int
+read_opt (qstring *s, texture_parameter *tparam)
+{
+    if (s->length != TEXTURE_FILE_SIZE)
+        return EXIT_FAILURE;
+
     unsigned long remmem = TEXTURE_FILE_SIZE;
+    const char* buf = s->val;
 
     /* This macro comes in very handy to read argument one after another. */
 #define READ_OPT(opt) \
@@ -557,6 +622,10 @@ read_opt (const char *buf, texture_parameter *tparam)
     READ_OPT (tparam->color3.blue);
     READ_OPT (tparam->smoothing);    
 
+    /* buf[0] != '\0' should never happen. */
+    if (buf[0] != '\0' || remmem != 0)
+        return EXIT_FAILURE;
+
     return EXIT_SUCCESS;
 }
 
@@ -582,49 +651,31 @@ main (int argc, char **argv)
     unsigned long file_size = ftell (file);
     fseek (file, 0, SEEK_SET);
 
-    /* WARNING: it is important to check the input file size. */
-    if (file_size != TEXTURE_FILE_SIZE)
-    {
-        trace ("Wrongly formatted texture file.");
-        return EXIT_FAILURE;
-    }
-
-    char *file_buf = malloc (file_size);
-    if (file_buf == NULL)
+    qstring file_buf;
+    if( qstring_init(&file_buf, file_size) == EXIT_FAILURE)
     {
         perror (argv[1]);
+        fclose(file);
         return EXIT_FAILURE;
     }
 
-    fread (file_buf, 1, file_size, file);
+    fread (file_buf.val, 1, file_size, file);
     fclose (file);
 
     /* Texture parameters. */
     texture_parameter tparam;
-    if (read_opt(file_buf, &tparam) == EXIT_FAILURE)
+    if (read_opt(&file_buf, &tparam) == EXIT_FAILURE)
     {
         trace("Texture file is corrupted.");
+        qstring_free(&file_buf);
         return EXIT_FAILURE;
     }
+    qstring_free(&file_buf);
 
-    /* fprintf (stderr, "%ld\n", seed); */
-    /* fprintf (stderr, "%ld\n", octaves); */
-    /* fprintf (stderr, "%ld\n", frequency); */
-    /* fprintf (stderr, "%lf\n", persistence); */
-    /* fprintf (stderr, "%ld\n", width); */
-    /* fprintf (stderr, "%ld\n", threshold_red); */
-    /* fprintf (stderr, "%ld\n", threshold_green); */
-    /* fprintf (stderr, "%ld\n", threshold_blue); */
-    /* fprintf (stderr, "%ld\n", color1.red); */
-    /* fprintf (stderr, "%ld\n", color1.green); */
-    /* fprintf (stderr, "%ld\n", color1.blue); */
-    /* fprintf (stderr, "%ld\n", color2.red); */
-    /* fprintf (stderr, "%ld\n", color2.green); */
-    /* fprintf (stderr, "%ld\n", color2.blue); */
-    /* fprintf (stderr, "%ld\n", color3.red); */
-    /* fprintf (stderr, "%ld\n", color3.green); */
-    /* fprintf (stderr, "%ld\n", color3.blue); */
-    /* fprintf (stderr, "%ld\n", smoothing); */
+    /* Print the details to output. */
+    texture_details(&tparam);
+
+    /**************************************/
 
     /* The base layer will contain our final result. */
     trace ("Init.");
@@ -639,15 +690,20 @@ main (int argc, char **argv)
     }
 
     /* Transform base using Perlin algorithm upon a randomly generated layer. */
-    trace ("Random layer.");
     layer random_layer;
     if (generate_random_layer (&random_layer, &base, tparam.seed) == EXIT_FAILURE)
+    {
+        trace ("Random layer failed.");
         return EXIT_FAILURE;
+    }
     save_bmp (&random_layer, OUTPUT_RANDOM);
     if (generate_work_layer
         (tparam.frequency, tparam.octaves, tparam.persistence, &base,
          &random_layer) == EXIT_FAILURE)
+    {
+        trace ("Work layer failed.");
         return EXIT_FAILURE;
+    }
     free_layer (&random_layer);
 
     trace ("GS.");
@@ -665,7 +721,10 @@ main (int argc, char **argv)
     {
         layer layer_smoothed;
         if (smooth_layer (&layer_smoothed, tparam.smoothing, &base) == EXIT_FAILURE)
+        {
+            trace ("Smoothed layer failed.");
             return EXIT_FAILURE;
+        }
 
         save_bmp (&layer_smoothed, OUTPUT_GS_SMOOTH);
         save_bmp_rgb (&layer_smoothed, OUTPUT_RGB_SMOOTH, tparam.threshold_red,
@@ -678,6 +737,5 @@ main (int argc, char **argv)
     }
 
     free_layer (&base);
-    free (file_buf);
     return EXIT_SUCCESS;
 }
