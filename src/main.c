@@ -25,9 +25,10 @@ typedef struct color
 #define TEXTURE_FILE_SIZE 29
 /* #define TEXTURE_FILE_SIZE 34 */
 
-/* TODO: size of the seed? */
 /* Texture parameters. */
-typedef struct texture_parameter {
+/* TODO: decrease size of the seed? */
+typedef struct texture_parameter
+{
     tsize_t width;
     tsize_t height;
     Uint16 seed;
@@ -56,18 +57,19 @@ typedef struct layer
 /* Quick strings. Having length is time saving. */
 typedef struct qstring
 {
-    char* val;
+    char *val;
     unsigned long length;
 } qstring;
 
 /******************************************************************************/
 
-int qstring_init (qstring *s, unsigned long size)
+int
+qstring_init (qstring * s, unsigned long size)
 {
-    s->val = malloc(size);
+    s->val = malloc (size);
     if (s->val == NULL)
     {
-        perror("qstring_init");
+        perror ("qstring_init");
         return EXIT_FAILURE;
     }
     s->length = size;
@@ -75,10 +77,11 @@ int qstring_init (qstring *s, unsigned long size)
     return EXIT_SUCCESS;
 }
 
-void qstring_free (qstring *s)
+void
+qstring_free (qstring * s)
 {
     if (s->val != NULL)
-        free(s->val);
+        free (s->val);
 }
 
 void
@@ -150,7 +153,7 @@ init_layer (layer * current_layer, tsize_t size)
         return EXIT_FAILURE;
     }
 
-    tarea_t memsize = (tarea_t)size * (tarea_t)size;
+    tarea_t memsize = (tarea_t) size * (tarea_t) size;
     current_layer->v = malloc (memsize * sizeof (Uint8));
 
     if (!current_layer->v)
@@ -174,7 +177,7 @@ free_layer (struct layer *l)
 Uint8 *
 at_layer (struct layer *l, tsize_t i, tsize_t j)
 {
-    return &(l->v[(tarea_t)i * (tarea_t)l->size + (tarea_t)j]);
+    return &(l->v[(tarea_t) i * (tarea_t) l->size + (tarea_t) j]);
 }
 
 
@@ -286,7 +289,8 @@ save_bmp_rgb (layer * current_layer, const char *filename,
 
 /**
  * Same as save_bmp_rgb but with cosine interpolation for colors. Result is more
- * "liquid".
+ * "liquid". Note the mirrored value around threshold/2. This is what gives the
+ * wave effect.
  */
 int
 save_bmp_alt (layer * current_layer,
@@ -308,14 +312,13 @@ save_bmp_alt (layer * current_layer,
         for (j = 0; j < current_layer->size; j++)
         {
             Uint8 red, green, blue;
-            double f;
 
-            /* TODO: test against "threshold", not "threshold / 2". */
             double value = fmod (*at_layer (current_layer, i, j), threshold);
             if (value > threshold / 2)
                 value = threshold - value;
 
-            f = (1 - cos (M_PI * value / (threshold / 2))) / 2;
+            double f = (1 - cos (M_PI * value / (threshold / 2))) / 2;
+
             red = color1.red * (1 - f) + color2.red * f;
             green = color1.green * (1 - f) + color2.green * f;
             blue = color1.blue * (1 - f) + color2.blue * f;
@@ -534,40 +537,40 @@ smooth_layer (layer * smoothed_layer, tsize_t factor, layer * current_layer)
 /******************************************************************************/
 
 void
-texture_details(texture_parameter *tparam)
+texture_details (texture_parameter * tparam)
 {
     if (tparam == NULL)
         return;
 
-    puts("{");
+    puts ("{");
 #define TEXTURE_PRINT(opt,fmt)  fprintf (stderr, "  " #opt ": %" fmt  "\n", opt);
 
-    // TODO: use nested macros to print using PRIu ## type_size.
-    TEXTURE_PRINT(tparam->width, PRIu32);
-    TEXTURE_PRINT(tparam->height, PRIu32);
+    // TODO: use macros to print using PRIu ## type_size.
+    TEXTURE_PRINT (tparam->width, PRIu32);
+    TEXTURE_PRINT (tparam->height, PRIu32);
 
-    TEXTURE_PRINT(tparam->seed, PRIu16);
-    TEXTURE_PRINT(tparam->octaves, PRIu16);
-    TEXTURE_PRINT(tparam->frequency, PRIu16);
-    TEXTURE_PRINT(tparam->persistence_num, PRIu8);
-    TEXTURE_PRINT(tparam->persistence_den, PRIu8);
+    TEXTURE_PRINT (tparam->seed, PRIu16);
+    TEXTURE_PRINT (tparam->octaves, PRIu16);
+    TEXTURE_PRINT (tparam->frequency, PRIu16);
+    TEXTURE_PRINT (tparam->persistence_num, PRIu8);
+    TEXTURE_PRINT (tparam->persistence_den, PRIu8);
 
-    TEXTURE_PRINT(tparam->threshold_red, PRIu8);
-    TEXTURE_PRINT(tparam->threshold_green, PRIu8);
-    TEXTURE_PRINT(tparam->threshold_blue, PRIu8);
-    TEXTURE_PRINT(tparam->color1.red, PRIu8);
-    TEXTURE_PRINT(tparam->color1.green, PRIu8);
-    TEXTURE_PRINT(tparam->color1.blue, PRIu8);
-    TEXTURE_PRINT(tparam->color2.red, PRIu8);
-    TEXTURE_PRINT(tparam->color2.green, PRIu8);
-    TEXTURE_PRINT(tparam->color2.blue, PRIu8);
-    TEXTURE_PRINT(tparam->color3.red, PRIu8);
-    TEXTURE_PRINT(tparam->color3.green, PRIu8);
-    TEXTURE_PRINT(tparam->color3.blue, PRIu8);
+    TEXTURE_PRINT (tparam->threshold_red, PRIu8);
+    TEXTURE_PRINT (tparam->threshold_green, PRIu8);
+    TEXTURE_PRINT (tparam->threshold_blue, PRIu8);
+    TEXTURE_PRINT (tparam->color1.red, PRIu8);
+    TEXTURE_PRINT (tparam->color1.green, PRIu8);
+    TEXTURE_PRINT (tparam->color1.blue, PRIu8);
+    TEXTURE_PRINT (tparam->color2.red, PRIu8);
+    TEXTURE_PRINT (tparam->color2.green, PRIu8);
+    TEXTURE_PRINT (tparam->color2.blue, PRIu8);
+    TEXTURE_PRINT (tparam->color3.red, PRIu8);
+    TEXTURE_PRINT (tparam->color3.green, PRIu8);
+    TEXTURE_PRINT (tparam->color3.blue, PRIu8);
 
-    TEXTURE_PRINT(tparam->smoothing, PRIu8);
+    TEXTURE_PRINT (tparam->smoothing, PRIu8);
 
-    puts("}");
+    puts ("}");
 }
 
 /**
@@ -575,13 +578,13 @@ texture_details(texture_parameter *tparam)
  * of READ_OPT does not go beyond the file length by testing against remmem.
  */
 int
-read_opt (qstring *s, texture_parameter *tparam)
+read_opt (qstring * s, texture_parameter * tparam)
 {
     if (s->length != TEXTURE_FILE_SIZE)
         return EXIT_FAILURE;
 
     unsigned long remmem = TEXTURE_FILE_SIZE;
-    const char* buf = s->val;
+    const char *buf = s->val;
 
     /* This macro comes in very handy to read argument one after another. */
 #define READ_OPT(opt) \
@@ -609,7 +612,7 @@ read_opt (qstring *s, texture_parameter *tparam)
     READ_OPT (tparam->color3.red);
     READ_OPT (tparam->color3.green);
     READ_OPT (tparam->color3.blue);
-    READ_OPT (tparam->smoothing);    
+    READ_OPT (tparam->smoothing);
 
     /* buf[0] != '\0' should never happen. */
     if (buf[0] != '\0' || remmem != 0)
@@ -641,10 +644,10 @@ main (int argc, char **argv)
     fseek (file, 0, SEEK_SET);
 
     qstring file_buf;
-    if( qstring_init(&file_buf, file_size) == EXIT_FAILURE)
+    if (qstring_init (&file_buf, file_size) == EXIT_FAILURE)
     {
         perror (argv[1]);
-        fclose(file);
+        fclose (file);
         return EXIT_FAILURE;
     }
 
@@ -653,16 +656,16 @@ main (int argc, char **argv)
 
     /* Texture parameters. */
     texture_parameter tparam;
-    if (read_opt(&file_buf, &tparam) == EXIT_FAILURE)
+    if (read_opt (&file_buf, &tparam) == EXIT_FAILURE)
     {
-        trace("Texture file is corrupted.");
-        qstring_free(&file_buf);
+        trace ("Texture file is corrupted.");
+        qstring_free (&file_buf);
         return EXIT_FAILURE;
     }
-    qstring_free(&file_buf);
+    qstring_free (&file_buf);
 
     /* Print the details to output. */
-    texture_details(&tparam);
+    texture_details (&tparam);
 
     /**************************************/
 
@@ -681,7 +684,8 @@ main (int argc, char **argv)
     /* Transform base using Perlin algorithm upon a randomly generated layer. */
     trace ("Random layer.");
     layer random_layer;
-    if (generate_random_layer (&random_layer, &base, tparam.seed) == EXIT_FAILURE)
+    if (generate_random_layer (&random_layer, &base, tparam.seed) ==
+        EXIT_FAILURE)
     {
         trace ("Random layer failed.");
         return EXIT_FAILURE;
@@ -692,11 +696,12 @@ main (int argc, char **argv)
     if (tparam.persistence_den == 0)
     {
         free_layer (&random_layer);
-        trace("Persistence denominator cannot be zero.");
+        trace ("Persistence denominator cannot be zero.");
         return EXIT_FAILURE;
     }
     if (generate_work_layer
-        (tparam.frequency, tparam.octaves, (double) tparam.persistence_num / tparam.persistence_den, &base,
+        (tparam.frequency, tparam.octaves,
+         (double) tparam.persistence_num / tparam.persistence_den, &base,
          &random_layer) == EXIT_FAILURE)
     {
         free_layer (&random_layer);
@@ -709,28 +714,32 @@ main (int argc, char **argv)
     save_bmp (&base, OUTPUT_GS);
     trace ("RGB.");
 
-    save_bmp_rgb (&base, OUTPUT_RGB, tparam.threshold_red, tparam.threshold_green,
-                  tparam.threshold_blue, tparam.color1, tparam.color2, tparam.color3);
+    save_bmp_rgb (&base, OUTPUT_RGB, tparam.threshold_red,
+                  tparam.threshold_green, tparam.threshold_blue,
+                  tparam.color1, tparam.color2, tparam.color3);
 
     trace ("Alt.");
-    save_bmp_alt (&base, OUTPUT_ALT, tparam.threshold_red, tparam.color1, tparam.color2);
+    save_bmp_alt (&base, OUTPUT_ALT, tparam.threshold_red, tparam.color1,
+                  tparam.color2);
 
     /* Smoothed version if option is non-zero. */
     if (tparam.smoothing != 0)
     {
         layer layer_smoothed;
-        if (smooth_layer (&layer_smoothed, tparam.smoothing, &base) == EXIT_FAILURE)
+        if (smooth_layer (&layer_smoothed, tparam.smoothing, &base) ==
+            EXIT_FAILURE)
         {
             trace ("Smoothed layer failed.");
             return EXIT_FAILURE;
         }
 
         save_bmp (&layer_smoothed, OUTPUT_GS_SMOOTH);
-        save_bmp_rgb (&layer_smoothed, OUTPUT_RGB_SMOOTH, tparam.threshold_red,
-                      tparam.threshold_green, tparam.threshold_blue, tparam.color1, tparam.color2,
+        save_bmp_rgb (&layer_smoothed, OUTPUT_RGB_SMOOTH,
+                      tparam.threshold_red, tparam.threshold_green,
+                      tparam.threshold_blue, tparam.color1, tparam.color2,
                       tparam.color3);
-        save_bmp_alt (&layer_smoothed, OUTPUT_ALT_SMOOTH, tparam.threshold_red,
-                      tparam.color1, tparam.color2);
+        save_bmp_alt (&layer_smoothed, OUTPUT_ALT_SMOOTH,
+                      tparam.threshold_red, tparam.color1, tparam.color2);
 
         free_layer (&layer_smoothed);
     }
