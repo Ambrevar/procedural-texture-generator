@@ -479,12 +479,12 @@ generate_work_layer (Uint16 frequency,
  * close to a border and k,l is no longer a square.
  */
 int
-smooth_layer (layer* smoothed_layer, long factor, layer * current_layer)
+smooth_layer (layer* smoothed_layer, tsize_t factor, layer * current_layer)
 {
-    long size = current_layer->size;
+    tsize_t size = current_layer->size;
     long damping;
-    long x, y; /* Point coordinates */
-    long k, l; /* Coordinates of the points in the square around (x,y). */
+    tsize_t x, y; /* Point coordinates */
+    tsize_t k, l; /* Coordinates of the points in the square around (x,y). */
     size_t kbegin, kend, lbegin, lend; /* Ranges. */
     double pixel_val;
 
@@ -500,32 +500,26 @@ smooth_layer (layer* smoothed_layer, long factor, layer * current_layer)
         {
             pixel_val = 0;
             damping = 0;
+
             kbegin = x-factor;
             kend = x+factor;
-            lbegin = x-factor;
-            lend = x+factor;
+            lbegin = y-factor;
+            lend = y+factor;
             if (factor > x)
                 kbegin = 0;
-            if (factor > size-x)
-                kend = size;
+            if (factor >= size-x)
+                kend = size-1;
             if (factor > y)
                 lbegin = 0;
-            if (factor > size-y)
-                lend = size;
+            if (factor >= size-y)
+                lend = size-1;
 
-            /* for (k = kbegin; k<= kend; k++) */
-            for (k = x-factor; k<= x+factor; k++)
+            for (k = kbegin; k<= kend; k++)
             {
-                /* for (l = lbegin; l<= lend; l++) */
-                for (l = y-factor; l<= y+factor; l++)
+                for (l = lbegin; l<= lend; l++)
                 {
-                    if ((k >= 0) && (k < size) && (l >= 0) && (l < size))
-                    {
-                        damping++;
-                        pixel_val += *at_layer(current_layer, k, l);
-                    }
-                    /* damping++; */
-                    /* pixel_val += *at_layer(current_layer, k, l); */
+                    damping++;
+                    pixel_val += *at_layer(current_layer, k, l);
                 }
             }
             *at_layer(smoothed_layer, x,y) = (double) pixel_val / damping;
