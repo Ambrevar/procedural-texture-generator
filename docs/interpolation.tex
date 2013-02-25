@@ -13,7 +13,7 @@
 %%=============================================================================
 %% Properties
 
-\title{Les textures procédurales}
+\title{Procedural textures}
 \author{\textsc{P.~Neidhardt}}
 
 %%=============================================================================
@@ -101,7 +101,7 @@
 %% Babel
 
 %% Load last before 'hyperref'.
-\usepackage[frenchb]{babel}
+%% \usepackage[frenchb]{babel}
 
 %%==============================================================================
 %% Hyperref
@@ -137,16 +137,20 @@
 \begin{document}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \maketitle
+
+\begin{abstract}
+  This is a draft on procedural textures.
+\end{abstract}
+
 \vfill
 \thispagestyle{empty}
 \tableofcontents
 
 \section{Interpolation}
 
-\subsection{Interpolation linéaire}
+\subsection{Linear interpolation}
 
-Fonction d'interpolation linéaire entre $a$ et $b$ :
-
+Linear interpolation function between $a$ and $b$:
 \[
 \boxed{
   \function {$f$} {$[0;1]$} {$[a;b]$} {$x$} {$a \cdot (1-x) + b \cdot x$}
@@ -155,34 +159,33 @@ Fonction d'interpolation linéaire entre $a$ et $b$ :
 
 \begin{figure}[p]
   \centering
-  \caption{Interpolation linéaire en niveau de gris}
+  \caption{Grayscale linear interpolation}
   \bigskip
-  \includegraphics[scale=0.8]{interpolation}
+  \includegraphics[scale=0.8]{pictures/interpolation}
 \end{figure}
 
 %%==============================================================================
-\subsection{Interpolation bilinéaire}
+\subsection{Bilinear interpolation}
 
 \begin{figure}[p]
   \centering
-  \caption{Procédé d'interpolation bilinéaire}
+  \caption{Bilinear interpolation process}
   \bigskip
   \includegraphics[width=\linewidth]{interpolation_bil}
 \end{figure}
 
-
 \begin{figure}[p]
   \centering
-  \caption{Interpolation bilinéaire}
+  \caption{Bilinear interpolation}
   \bigskip
-  \subfigure[Points d'interpolation en 2D]{\label{fig:contour-a}\includegraphics[scale=0.75]{interpol_bil_step1}}
-  \subfigure[Application de l'interpolation bilinéaire]{\label{fig:contour-b}\includegraphics{interpol_bil_step2}}
+  \subfigure[Interpolation points in 2D]{\label{fig:contour-a}\includegraphics[scale=0.75]{interpol_bil_step1}}
+  \subfigure[Applying the bilinear interpolation]{\label{fig:contour-b}\includegraphics{interpol_bil_step2}}
 \end{figure}
 
 %%==============================================================================
-\subsubsection{Fonctions d'interpolation non linéaire}
+\subsubsection{Non-linear interpolation function}
 
-Interpolation cosinusoïdale entre $a$ et $b$ :
+Cosine interpolation between $a$ and $b$:
 
 \[\boxed{
   \function{$f$}{$[0;1]$}{$[a;b]$}{$x$}{$a \cdot \frac {1+\cos(x\cdot\pi)} {2} + b \cdot \frac {1-\cos(x\cdot\pi)} {2}$}
@@ -190,48 +193,54 @@ Interpolation cosinusoïdale entre $a$ et $b$ :
 
 \begin{figure}[p]
   \centering
-  \caption{Interpolation cosinusoïdale}
+  \caption{Cosine interpolation}
   \bigskip
   \includegraphics{interpol_cos}
 \end{figure}
 
-L'interpolation polynomiale classique n'est pas la plus rapide et souffre d'un
-effet de bord connu sous le nom de phénomène de Runge. Les fonctions splines
-(notamment les splines cubiques) ont l'avantage d'être plus rapide et sans effet
-de bord.
+The classic polynomial interpolation is not the fastest. Besides it suffers from
+a well-known side-effect called the Runge's phenomenon. Spline functions
+(e.g. cubic splines) are faster without any side-effect.
 
 %%==============================================================================
-\section{Fusion des différentes interpolations}
+\section{Fusion of various interpolations}
 
-\subsection{Définitions}
+\subsection{Definitions}
 
-\definition{Fréquence}{Nombre de pixels utilisés comme points d'interpolation (sur une seule dimension). Ces pixels sont séparés par un interval constant appelé \textbf{pas}, dépendant de la fréquence et de la taille de l'image.}
+\definition{Frequency}{Number of pixels used as interpolation point (on one
+  dimension). These pixels are split by a fixed interval called \emph{step},
+  which depends on the frequency and the size of the picture.}
 
 \begin{figure}[p]
   \centering
-  \caption{Fréquence}
+  \caption{Frequency}
   \bigskip
   \includegraphics[scale=0.8]{interpol_bil_step1}
 \end{figure}
 
-\definition{Octave}{Calque dessiné en parallèle à l'image de base avec un certaine fréquence. Tout calque a une fréquence supérieure à celle du calque précédent (typiquement le carré de la fréquence de celle-ci). Le calque est fusionné avec l'image de base pour donner le résultat final.}
+\definition{Octave}{Virtual layer drawn in parallel to the reference layer,
+  at a given frequency. Octaves are drawn in sequence, where the $n$th octave
+  has a higher frequency than the $n-1$th. A typical increase in frequency would
+  be to take the square of the previous value. In the end the resulting layers are merged together.}
 
-\definition{Persistance}{Facteur de pondération associé à un calque lui conférant plus ou moins d'importance sur le résultat final.}
+\definition{Persistance}{Weight factor for every octave that provides more or
+  less impact on the final result.}
 
 \bigskip
-Remarque : comme les valeurs du calque doivent rester dans $\{0;255\}$, il faut prendre garde que la somme totale ne dépasse pas 255, sans quoi  cela donne lieu à des incohérences.
-Une persistance maximale de 0.5 assure l'absence d'incohérence :
+Note: since the layer values must reamin in $\{0;255\}$, we must take care that
+the sum does not overflow. Limiting the persistence 0.5 makes sure we do not sum
+over 255 when octave persistences are powers of the original one.
 \[
 \sum_{k=1}^{\infty} p^k= \frac {p} {1-p} \leqslant 1 \Rightarrow p \leqslant 0.5
 \]
 
 \bigskip
-Paramètres de la texture :
+Texture parameters:
 \begin{itemize}
-\item $\mathbf{graine} \in \mathbb{N}$
-\item $\mathbf{frequence} \in \{ 2^i; i \in \mathbb{N}\}$
-\item $\mathbf{nombre\_octaves} \in \mathbb{N}$
-\item $\mathbf{persistance} \in [0,1]$
+\item $\mathbf{ssed} \in \mathbb{N}$
+\item $\mathbf{frequency} \in \{ 2^i; i \in \mathbb{N}\}$
+\item $\mathbf{octaves} \in \mathbb{N}$
+\item $\mathbf{persistence} \in [0,1]$
 \end{itemize}
 
 
