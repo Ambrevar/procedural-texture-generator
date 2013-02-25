@@ -21,8 +21,6 @@
      _a < _b ? _a : _b; })
 
 
-// TODO: check all types (long, double, Uint8, etc.).
-
 /* TODO: replace persistence double with a Uint8/Uint8 fraction. */
 /* TODO: Could seed be one one byte only? */
 /**
@@ -545,6 +543,7 @@ main (int argc, char **argv)
     unsigned long file_size = ftell (file);
     fseek (file, 0, SEEK_SET);
 
+    /* WARNING: it is important to check the input file size. */
     if (file_size != TEXTURE_FILE_SIZE)
     {
         trace ("Wrongly formatted texture file.");
@@ -577,27 +576,28 @@ main (int argc, char **argv)
 
     char *option_ptr = file_buf;
 
-    // TODO: get size with sizeof.
-#define READ_OPT(opt,size) memcpy(&(opt), option_ptr, size); option_ptr += size;
+    /* This macro comes very handy to read argument one after another. WARNING:
+     * there is not special check here. */
+#define READ_OPT(opt) memcpy(&(opt), option_ptr, sizeof(opt)); option_ptr += sizeof(opt);
 
-    READ_OPT (seed, 4);
-    READ_OPT (octaves, 2);
-    READ_OPT (frequency, 2);
-    READ_OPT (persistence, 8);
-    READ_OPT (width, 4);
-    READ_OPT (threshold_red, 1);
-    READ_OPT (threshold_green, 1);
-    READ_OPT (threshold_blue, 1);
-    READ_OPT (color1.red, 1);
-    READ_OPT (color1.green, 1);
-    READ_OPT (color1.blue, 1);
-    READ_OPT (color2.red, 1);
-    READ_OPT (color2.green, 1);
-    READ_OPT (color2.blue, 1);
-    READ_OPT (color3.red, 1);
-    READ_OPT (color3.green, 1);
-    READ_OPT (color3.blue, 1);
-    READ_OPT (smoothing, 2);
+    READ_OPT (seed );
+    READ_OPT (octaves );
+    READ_OPT (frequency );
+    READ_OPT (persistence );
+    READ_OPT (width );
+    READ_OPT (threshold_red );
+    READ_OPT (threshold_green );
+    READ_OPT (threshold_blue );
+    READ_OPT (color1.red );
+    READ_OPT (color1.green );
+    READ_OPT (color1.blue );
+    READ_OPT (color2.red );
+    READ_OPT (color2.green );
+    READ_OPT (color2.blue );
+    READ_OPT (color3.red );
+    READ_OPT (color3.green );
+    READ_OPT (color3.blue );
+    READ_OPT (smoothing );
 
     /* fprintf (stderr, "%ld\n", seed); */
     /* fprintf (stderr, "%ld\n", octaves); */
