@@ -1,3 +1,5 @@
 * Prevent creator from messing output with CRLF files.
 * Rename creator to ptx-creator.
 * Add PPM driver.
+* Optimization (for 4096*4096 textures).
+* Threaded version.
