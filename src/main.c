@@ -162,7 +162,7 @@ color_pixel (SDL_Surface * screen, long x, long y, Uint8 red, Uint8 green,
 
 // TODO: error check.
 /* Grayscale bitmap. */
-void
+int
 save_bmp (struct layer *current_layer, const char *filename)
 {
     SDL_Surface *screen =
@@ -170,7 +170,10 @@ save_bmp (struct layer *current_layer, const char *filename)
                               current_layer->size, 32, 0, 0, 0,
                               0);
     if (!screen)
+    {
         trace ("SDL error on SDL_CreateRGBSurface");
+        return EXIT_FAILURE;
+    }
 
     long i, j;
     for (i = 0; i < current_layer->size; i++)
@@ -180,19 +183,28 @@ save_bmp (struct layer *current_layer, const char *filename)
 
     SDL_SaveBMP (screen, filename);
     SDL_FreeSurface (screen);
+
+    return EXIT_SUCCESS;
 }
 
-void
+/**
+ * In the whole program layers are encoded in grayscale. To add colors, we use
+ * the three colors and thresholds provided as argument.
+ */
+int
 save_bmp_rgb (layer * current_layer, const char *filename,
-              Uint8 threshold_red, Uint8 threshold_green,
-              Uint8 threshold_blue, color color1, color color2, color color3)
+              Uint8 threshold_red, Uint8 threshold_green, Uint8 threshold_blue,
+              color color1, color color2, color color3)
 {
 
     SDL_Surface *screen =
         SDL_CreateRGBSurface (SDL_SWSURFACE, current_layer->size,
                               current_layer->size, 32, 0, 0, 0, 0);
     if (!screen)
+    {
         trace ("SDL error on SDL_CreateRGBSurface");
+        return EXIT_FAILURE;
+    }
 
     long i, j;
 
@@ -240,21 +252,28 @@ save_bmp_rgb (layer * current_layer, const char *filename,
 
     SDL_SaveBMP (screen, filename);
     SDL_FreeSurface (screen);
+
+    return EXIT_SUCCESS;
 }
 
-
-void
+/**
+ * Same as save_bmp_rgb but with cosine interpolation for colors. Result is more
+ * "liquid".
+ */
+int
 save_bmp_alt (layer * current_layer,
               const char *filename, Uint8 threshold, color color1,
               color color2)
 {
-
     SDL_Surface *screen =
         SDL_CreateRGBSurface (SDL_SWSURFACE, current_layer->size,
                               current_layer->size, 32, 0, 0, 0,
                               0);
     if (!screen)
+    {
         trace ("SDL error on SDL_CreateRGBSurface");
+        return EXIT_FAILURE;
+    }
 
     long i, j;
     for (i = 0; i < current_layer->size; i++)
@@ -263,11 +282,11 @@ save_bmp_alt (layer * current_layer,
             Uint8 red, green, blue;
             double f;
 
+            /* TODO: test against "threshold", not "thresholt / 2". */
             double value = fmod (*at_layer(current_layer, i,j), threshold);
             if (value > threshold / 2)
                 value = threshold - value;
 
-            /* Cosine interpolation. */
             f = (1 - cos (M_PI * value / (threshold / 2))) / 2;
             red = color1.red * (1 - f) + color2.red * f;
             green = color1.green * (1 - f) + color2.green * f;
@@ -278,9 +297,10 @@ save_bmp_alt (layer * current_layer,
 
     SDL_SaveBMP (screen, filename);
     SDL_FreeSurface (screen);
+    return EXIT_SUCCESS;
 }
 
-// TODO: what are the two spline conditions?
+/* TODO: what are the two spline conditions? */
 long
 interpol (long y1, long y2, long step, long delta)
 {
@@ -309,7 +329,9 @@ interpol (long y1, long y2, long step, long delta)
 long
 interpol_val (long i, long j, long frequency, layer * current_layer)
 {
-    // Bound values.
+    /* Bound values are the four corners of the square in which the point (i,j)
+     * is. The square is actually the grid computed upon the frequency and the
+     * size of the layout. */
     long bound1i, bound1j, bound2i, bound2j;
 
     long step = current_layer->size / frequency;
@@ -341,10 +363,11 @@ interpol_val (long i, long j, long frequency, layer * current_layer)
     return result;
 }
 
-/* Gray scale */
 layer *
 generate_random_layer (layer* random_layer, layer *c, unsigned long seed)
 {
+    /* Values are only on 0..255, so it's gray scale. We add colors only when we
+     * save/render the picture. */
     long size = c->size;
     long i, j;
 
@@ -355,9 +378,10 @@ generate_random_layer (layer* random_layer, layer *c, unsigned long seed)
         return c;
     }
 
-    /* Init seeds for both std and home-made RNG. */
+    /* Init seeds for both std and home-made RNG. We do not use the home-made
+     * RNG here. */
     srand (seed);
-    custom_randomgen (0, seed);
+    /* custom_randomgen (0, seed); */
     for (i = 0; i < size; i++)
         for (j = 0; j < size; j++)
             /* random_layer->v[i][j] = custom_randomgen (255, 0); */
@@ -421,7 +445,6 @@ generate_work_layer (long frequency,
     free (work_layers);
 }
 
-
 /**
  * We set the x,y pixel to be the mean of all pixels in the k,l square around
  * it. The new pixel value type needs to be higher than traditionnal pixel
@@ -432,7 +455,6 @@ generate_work_layer (long frequency,
 layer *
 smooth_layer (layer* smoothed_layer, long factor, layer * current_layer)
 {
-
     long size = current_layer->size;
     long damping;
     long x, y;
@@ -609,7 +631,6 @@ main (int argc, char **argv)
 
         free_layer (&layer_smoothed);
     }
-
 
     free_layer (&base);
     free (file_buf);
