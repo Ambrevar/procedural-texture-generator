@@ -41,9 +41,9 @@ This small program is a simple implementation of the Perlin algorithm:
     surrounding square.
 
   - Colors: until now we have worked in grayscale only. We can provide three
-    color threshold. All values between 0 and threshold1 will have color1. All
+    color thresholds. All values between 0 and threshold1 will have color1. All
     values between threshold1 and threshold2 will have the mean value of color1
-    and color2 weight by the distance to the threshold. And so forth. See the
+    and color2 weighted by the distance to the threshold. And so forth. See the
     source file for examples.
 
   - Cosine interpolation: this will generate sort of cells. If we mirror the
@@ -64,8 +64,7 @@ This will build two standalone, independant executables:
 * 'creator' for text-to-binary texture creation (see below).
 * 'procedural-textures' to generate the graphic files from the binary data.
 
-There is no 'make install' since this program is a tech demo is a not suitable
-for everyday use.
+There is no 'make install' since this program is a tech demo.
 
 Usage
 =====
