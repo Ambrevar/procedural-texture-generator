@@ -12,4 +12,4 @@ clean:
 	@make -C src/ clean
 
 
-.PHONY = all clean 
+.PHONY = all clean

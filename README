@@ -11,7 +11,7 @@ used in CGI and video games. Let's face it: if you are looking for a decent
 texture quality, you will need really big files. That's why video games textures
 have not improved that much over the last decade.
 
-The idea behind procedural textures is to describe the picture with math
+The idea behind procedural textures is to describe the picture with mathematical
 functions instead of describing every pixel individually. Hence their extremely
 small size for a virtually infitine resolution. The big downside is the lack of
 artistic freedom in texture design. It is not suitable for every purpose.
@@ -76,8 +76,8 @@ ptx), so they may not be easy to create. I provided a small editor, the
 
   $ creator text-file binary-file
 
-where text-file is a valid textual description. To get a clearer view of what a
-texture description file, use an example:
+where text-file is a valid textual description. To get a clearer view over the
+texture description file format, use an example:
 
   $ procedural-textures wood.ptx
 
