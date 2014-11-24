@@ -19,7 +19,7 @@ This small program is a simple implementation of the Perlin algorithm:
 
 * Start from a random grayscale layer.
 
-* Build from this layer a first octave, which is a new layer with frequency f,
+* Build from this layer a first octave, which is a new layer with frequency _f_,
   i.e. reuse only the points on a grid where with f nodes in width. The other
   pixels should be undefined.
 
@@ -27,7 +27,7 @@ This small program is a simple implementation of the Perlin algorithm:
   nodes. Cubic splines are great at interpolating.
 
 * Continue with building the next octaves while increasing the frequency. A
-  typical increase would  f *= original_f.
+  typical increase would `f *= original_f`.
 
 * Now the octaves are ready, they should be associated with a persistence, which
   can be seen as a transparency factor in [0,1]. Sum all the octaves to get the
@@ -35,14 +35,14 @@ This small program is a simple implementation of the Perlin algorithm:
 
 * Optional: apply filters. Interresting filters are:
 
-  - Smoothing: for every pixel change its value to the mean of the n*n
+  - Smoothing: for every pixel change its value to the mean of the _n*n_
     surrounding square.
 
   - Colors: until now we have worked in grayscale only. We can provide three
-    color thresholds. All values between 0 and threshold1 will have color1. All
-    values between threshold1 and threshold2 will have the mean value of color1
-    and color2 weighted by the distance to the threshold. And so forth. See the
-    source file for examples.
+    color thresholds. All values between 0 and _threshold1_ will have _color1_.
+    All values between _threshold1_ and _threshold2_ will have the mean value of
+    _color1_ and _color2_ weighted by the distance to the threshold. And so
+    forth. See the source file for examples.
 
   - Cosine interpolation: this will generate sort of cells. If we mirror the
     threshold (see source code) it will result in a liquid/wave-looking texture.
@@ -79,9 +79,9 @@ texture description file format, use an example:
 
 ## Links
 
-* [Wikipedia: Texture](http://en.wikipedia.org/wiki/Procedural_texture)
-* [Wikipedia: Texture](http://en.wikipedia.org/wiki/Texture_synthesis)
-* [Wikipedia: Texture](http://en.wikipedia.org/wiki/Perlin_noise)
+* [Wikipedia: Procedural texture](http://en.wikipedia.org/wiki/Procedural_texture)
+* [Wikipedia: Texture synthesis](http://en.wikipedia.org/wiki/Texture_synthesis)
+* [Wikipedia: Perlin noise](http://en.wikipedia.org/wiki/Perlin_noise)
 * [Ken Perlin](http://www.noisemachine.com/talk1/4.html)
 * [Hugo Elias](http://freespace.virgin.net/hugo.elias/models/m_perlin.htm)
 * [Paul Bourke](http://paulbourke.net/texture_colour/perlin/)
