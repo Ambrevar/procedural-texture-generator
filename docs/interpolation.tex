@@ -13,7 +13,7 @@
 %%=============================================================================
 %% Properties
 
-\title{Procedural textures}
+\title{Draft on procedural textures}
 \author{\textsc{P.~Neidhardt}}
 
 %%=============================================================================
@@ -117,15 +117,6 @@
 }
 
 %%==============================================================================
-\newcommand{\definition}[2]{
-  \noindent\textbf{#1}\par\vspace{.5\baselineskip}
-  \noindent\fbox{
-    \begin{minipage}{\textwidth}
-      #2
-    \end{minipage}
-  }
-}
-
 \newcommand{\function}[5]{
   \begin{tabular}{rl}
     #1 $\colon$ #2 & $\longrightarrow$ #3 \\
@@ -137,10 +128,6 @@
 \begin{document}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \maketitle
-
-\begin{abstract}
-  This is a draft on procedural textures.
-\end{abstract}
 
 \vfill
 \thispagestyle{empty}
@@ -207,9 +194,10 @@ a well-known side-effect called the Runge's phenomenon. Spline functions
 
 \subsection{Definitions}
 
-\definition{Frequency}{Number of pixels used as interpolation point (on one
-  dimension). These pixels are split by a fixed interval called \emph{step},
-  which depends on the frequency and the size of the picture.}
+\paragraph{Frequency}
+Number of pixels used as interpolation point (on one dimension). These pixels
+are split by a fixed interval called \emph{step}, which depends on the frequency
+and the size of the picture.
 
 \begin{figure}[p]
   \centering
@@ -218,17 +206,19 @@ a well-known side-effect called the Runge's phenomenon. Spline functions
   \includegraphics[scale=0.8]{interpol_bil_step1}
 \end{figure}
 
-\definition{Octave}{Virtual layer drawn in parallel to the reference layer,
-  at a given frequency. Octaves are drawn in sequence, where the $n$th octave
-  has a higher frequency than the $n-1$th. A typical increase in frequency would
-  be to take the square of the previous value. In the end the resulting layers are merged together.}
+\paragraph{Octave}
+Virtual layer drawn in parallel to the reference layer, at a given frequency.
+Octaves are drawn in sequence, where the $n$th octave has a higher frequency
+than the $n-1$th. The value of the new frequency is typically the square of the
+previous value. In the end the resulting layers are merged together.
 
-\definition{Persistance}{Weight factor for every octave that provides more or
-  less impact on the final result.}
+\paragraph{Persistance}
+Weight factor for every octave that provides more or less impact on the final
+result.
 
 \bigskip
-Note: since the layer values must reamin in $\{0;255\}$, we must take care that
-the sum does not overflow. Limiting the persistence 0.5 makes sure we do not sum
+Note: since the layer values must remain in $[0;255]\cap \mathbb{N}$, we must take care that
+the sum does not overflow. Limiting the persistence to 0.5 makes sure we do not sum
 over 255 when octave persistences are powers of the original one.
 \[
 \sum_{k=1}^{\infty} p^k= \frac {p} {1-p} \leqslant 1 \Rightarrow p \leqslant 0.5
@@ -237,7 +227,7 @@ over 255 when octave persistences are powers of the original one.
 \bigskip
 Texture parameters:
 \begin{itemize}
-\item $\mathbf{ssed} \in \mathbb{N}$
+\item $\mathbf{seed} \in \mathbb{N}$
 \item $\mathbf{frequency} \in \{ 2^i; i \in \mathbb{N}\}$
 \item $\mathbf{octaves} \in \mathbb{N}$
 \item $\mathbf{persistence} \in [0,1]$

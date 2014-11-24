@@ -124,18 +124,12 @@
 \thispagestyle{empty}
 %% \tableofcontents
 
-\begin{abstract}
-  This is an approximate translation. Some mathematical terms need to be
-  corrected.
-\end{abstract}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Random number generators}
 
 \subsection{Maximal period}
 
-Problem situation: a random number generator (RNG) is an application from $\N$
+Problem context: a random number generator (RNG) is an application from $\N$
 to $\N^\N$, \ie{} given an integer it will return an integer sequence.
 
 In computer science, numbers have an upper bound. RNG are often defined by a
@@ -149,8 +143,8 @@ values between $0$ and $m-1$.
 
 
 \paragraph{Definition}
-A RNG is said to be of \emph{maximal period} if all values of the target
-interval are met by the sequence.
+A RNG is said to be of \emph{maximal period} if all values of the codomain
+are met by the sequence.
 
 \paragraph{Property}
 
@@ -159,7 +153,7 @@ interval are met by the sequence.
 \left\{
   \begin{array}{l}
     \text{(1) } \gcd(b,m) = 1 \\
-    \text{(2) } \text{For all prime $p$ dividing $m$, we have } a \bmod p = 1 \\
+    \text{(2) } \text{For all primes $p$ dividing $m$, we have } a \bmod p = 1 \\
     \text{(3) } \text{If 4 divides $m$, then } a \bmod 4 = 1 \\
   \end{array}
 \right.
@@ -168,9 +162,13 @@ interval are met by the sequence.
 
 
 \paragraph{Proof}
+
+I did not manage to prove this completely. Feel free to share your knowledge on
+the problem.
+
 \subparagraph{Relation (1)}
 
-Let's assume the period is maximal. The sequence can be solved:
+Let's assume that the period is maximal. The sequence can be solved:
 \[
 u_{n+1} = a \cdot u_n + b
 \]
@@ -188,8 +186,8 @@ The modulus does not change anything. Hence
 \[
 \boxed{ u_n = a^n \cdot (u_0 - l) + l \bmod m }
 \]
-Changing the indices this is equivalent to using a sequence where the first term
-would be 0.
+By changing the indices, we can see this is equivalent to using a sequence where
+the first term would be 0.
 \[
 u_n =  l \cdot (1 - a^n) \bmod m
 \]
