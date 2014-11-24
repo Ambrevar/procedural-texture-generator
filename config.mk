@@ -1,25 +1,21 @@
-##==============================================================================
-## procedural-textures make configuration
-##==============================================================================
+## This file is included by all (sub-)makefiles.
 
-APPNAME = "procedural-textures"
-BIN = procedural-textures
-VERSION = 1.0
-AUTHOR = "Pierre Neidhardt"
-# MAIL <ambrevar [at] gmail [dot] com>"
-YEAR = "2013"
+## Properties.
+appname = Procedural Texture Generator
+authors = Pierre Neidhardt
+cmdname = ptg
+url = http://bitbucket.org/ambrevar/procedural-texture-generator
+version = 1.1
+year = 2014
 
-## Paths
-PREFIX ?= /usr/local
-BINDIR ?= ${PREFIX}/bin
-DATADIR ?= ${PREFIX}/share
-MANDIR ?= ${DATADIR}/man
-MAN1DIR ?= ${MANDIR}/man1
+## Folders.
+srcdir = src
+docsrcdir = doc
+testdir = tests
 
-## Tools
-CC=gcc
+## USER SETTINGS
 
-## Customize below to fit your system
-# CFLAGS ?= -g3 -O0
-CFLAGS ?= -Os
-LDFLAGS ?= -s
+## Optional compilation flags.
+CFLAGS ?= -Wall -Wextra -Wshadow
+
+## END OF USER SETTINGS

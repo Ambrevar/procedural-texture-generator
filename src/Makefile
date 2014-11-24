@@ -1,57 +1,28 @@
-################################################################################
-# procedural-textures makefile
-# 2013-02-24
-################################################################################
+ROOT ?= ..
+include ${ROOT}/config.mk
 
-include ../config.mk
+CPPFLAGS += -DAUTHORS="${authors}" -DVERSION=${version} -DYEAR=${year}
+CPPFLAGS += -DHAVE_INLINE
+LDLIBS += -lm
+LDLIBS += -lSDL
 
-## Appends user flags.
-CFLAGS_ALL += ${CFLAGS}
-LDFLAGS_ALL += ${LDFLAGS}
+all: ${cmdname} creator
 
-## Application information.
-CFLAGS_ALL += -DAPPNAME=\"${APPNAME}\"
-CFLAGS_ALL += -DVERSION=\"${VERSION}\"
-CFLAGS_ALL += -DAUTHOR=\"${AUTHOR}\"
-CFLAGS_ALL += -DYEAR=\"${YEAR}\"
+.PHONY: debug
+debug:
+	CFLAGS+="-g3 -O0 -DDEBUG=9" ${MAKE}
 
-CFLAGS_ALL += -Wall -Wextra -Wshadow -Winline -pedantic -std=c99
-
-## For use of getopt() with -pedantic.
-CFLAGS_ALL += -D_XOPEN_SOURCE=700
-
-## SDL
-LDFLAGS_ALL += -lSDL
-
-## Math
-LDFLAGS_ALL += -lm
-
-SRC += main.c
-# OBJ = ${SRC:.c=.o}
-
-##==============================================================================
-## Rules
-##==============================================================================
-
-all: options ${BIN} creator
-
-options:
-	@echo ${BIN} build options:
-	@echo "CFLAGS  = ${CFLAGS_ALL}"
-	@echo "LDFLAGS = ${LDFLAGS_ALL}"
-	@echo "CC      = ${CC}"
-
-creator: creator.c
-	@${CC} ${CFLAGS_ALL} $^ -o $@
-
-${BIN}: ${SRC}
-	@${CC} ${LDFLAGS_ALL} $^ -o $@
-
-%.o: %.c
-	@${CC} ${CFLAGS_ALL} $< -c -o $@
-
+.PHONY: clean
 clean:
-	@rm -f ${BIN} ${OBJ} creator
+	rm -f ${cmdname} *.d *.o creator
 
-.PHONY=all options clean
+## Generate prerequisites automatically. GNU Make only.
+## The 'awk' part is used to add the .d file itself to the target, so that it
+## gets updated on changes. The -MQ option is to add full path to object files
+## in subfolders. (-MM strips parent directories.)
+%.d: %.c
+	${CC} -MM -MQ ${<:.c=.o} ${CPPFLAGS} $< | awk -v stem=$* -v target=$@ '{gsub (stem ".o[ :]*", stem ".o " target " : ")} 1' > $@
 
+sources = $(wildcard *.c)
+deps = ${sources:.c=.d}
+-include ${deps}

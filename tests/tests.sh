@@ -18,8 +18,10 @@ sumcheck() {
 	fi
 }
 
-"$root"/src/procedural-textures "$root"/data/wood.ptx 2>/dev/null
-sumcheck "$res"/result_RGB.bmp result_RGB.bmp
-sumcheck "$res"/result_RGB_smooth.bmp result_RGB_smooth.bmp
-sumcheck "$res"/result_alt_smooth.bmp result_alt_smooth.bmp
-rm *bmp
+"$root"/src/ptg "$root"/data/wood.ptx 2>/dev/null
+if [ $? -eq 0 ]; then
+	sumcheck "$res"/result_RGB.bmp result_RGB.bmp
+	sumcheck "$res"/result_RGB_smooth.bmp result_RGB_smooth.bmp
+	sumcheck "$res"/result_alt_smooth.bmp result_alt_smooth.bmp
+	rm *bmp
+fi

@@ -1,15 +1,20 @@
+ROOT = .
+include ${ROOT}/config.mk
+
 ################################################################################
-# procedural-textrures makefile
-# 2013-02-24
-################################################################################
+## Build.
 
-include config.mk
+.PHONY: all
+all: app
 
-all:
-	@make -C src/
+.PHONY: app
+app:
+	${MAKE} -C ${srcdir}
 
+.PHONY: debug
+debug:
+	CFLAGS+="-g3 -O0 -DDEBUG=9" ${MAKE}
+
+.PHONY: clean
 clean:
-	@make -C src/ clean
-
-
-.PHONY = all clean
+	${MAKE} -C ${srcdir} clean
