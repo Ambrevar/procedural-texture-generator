@@ -6,7 +6,7 @@ CPPFLAGS += -DHAVE_INLINE
 LDLIBS += -lm
 LDLIBS += -lSDL
 
-all: ${cmdname} creator
+all: ${cmdname} ptx-creator
 
 .PHONY: debug
 debug:
@@ -14,7 +14,7 @@ debug:
 
 .PHONY: clean
 clean:
-	rm -f ${cmdname} *.d *.o creator
+	rm -f ${cmdname} *.d *.o ptx-creator
 
 ## Generate prerequisites automatically. GNU Make only.
 ## The 'awk' part is used to add the .d file itself to the target, so that it

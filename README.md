@@ -59,8 +59,8 @@ simply run:
 
 This will build two standalone, independant executables:
 
-* 'creator' for text-to-binary texture creation (see below).
-* 'procedural-textures' to generate the graphic files from the binary data.
+* `ptx-creator` for text-to-binary texture creation (see below).
+* `ptg` to generate the graphic files from the binary data.
 
 There is no `make install` since this program is a technology demo.
 
@@ -70,12 +70,12 @@ First you need to create some textures. Textures are binary file (conventionnaly
 ptx), so they may not be easy to create. I provided a small editor, the
 'creator'. All you need is to type
 
-	$ creator text-file binary-file
+	$ ptx-creator text-file binary-file
 
 where text-file is a valid textual description. To get a clearer view over the
 texture description file format, use an example:
 
-	$ procedural-textures wood.ptx
+	$ ptg wood.ptx
 
 ## Links
 
