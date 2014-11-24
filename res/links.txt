@@ -1,8 +1,0 @@
-http://en.wikipedia.org/wiki/Procedural_texture
-http://en.wikipedia.org/wiki/Texture_synthesis
-http://en.wikipedia.org/wiki/Perlin_noise
-
-Ken Perlin: http://www.noisemachine.com/talk1/4.html
-Hugo Elias: http://freespace.virgin.net/hugo.elias/models/m_perlin.htm
-Broken: http://local.wasp.uwa.edu.au/~pbourke/texture_colour/perlin/
-French: http://khayyam.developpez.com/articles/algo/perlin/

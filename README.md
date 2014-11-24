@@ -1,9 +1,7 @@
-################################################################################
-                              Procedural textures
-                         Infinite quality for 30 bytes
+# Procedural textures
+### Infinite quality for 30 bytes
 
-                                  P. Neidhardt
-################################################################################
+## Abstract
 
 Since the late 90s the rise of computational power and storage capacity has led
 to very much resource abuse. One of them is the huge waste of space for textures
@@ -50,33 +48,41 @@ This small program is a simple implementation of the Perlin algorithm:
     threshold (see source code) it will result in a liquid/wave-looking texture.
 
 
-################################################################################
-Building
-========
+--------------------------------------------------------------------------------
+
+## Building
 
 There is an embedded makefile. The only dependency is SDL. To build the program
 simply run:
 
-  $ make
+	$ make
 
 This will build two standalone, independant executables:
 
 * 'creator' for text-to-binary texture creation (see below).
 * 'procedural-textures' to generate the graphic files from the binary data.
 
-There is no 'make install' since this program is a tech demo.
+There is no `make install` since this program is a technology demo.
 
-Usage
-=====
+## Usage
 
 First you need to create some textures. Textures are binary file (conventionnaly
 ptx), so they may not be easy to create. I provided a small editor, the
 'creator'. All you need is to type
 
-  $ creator text-file binary-file
+	$ creator text-file binary-file
 
 where text-file is a valid textual description. To get a clearer view over the
 texture description file format, use an example:
 
-  $ procedural-textures wood.ptx
+	$ procedural-textures wood.ptx
 
+## Links
+
+* [Wikipedia: Texture](http://en.wikipedia.org/wiki/Procedural_texture)
+* [Wikipedia: Texture](http://en.wikipedia.org/wiki/Texture_synthesis)
+* [Wikipedia: Texture](http://en.wikipedia.org/wiki/Perlin_noise)
+* [Ken Perlin](http://www.noisemachine.com/talk1/4.html)
+* [Hugo Elias](http://freespace.virgin.net/hugo.elias/models/m_perlin.htm)
+* [Paul Bourke](http://paulbourke.net/texture_colour/perlin/)
+* [Developpez.com](http://khayyam.developpez.com/articles/algo/perlin/) (French)
